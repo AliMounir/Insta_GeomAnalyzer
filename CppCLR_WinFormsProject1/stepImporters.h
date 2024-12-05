@@ -1,4 +1,5 @@
 #pragma once
+#include "GeomInfo.h"
 #include "pch.h"
 
 
@@ -6,5 +7,5 @@
 
 
 TopoDS_Shape ImportSTEP(const Standard_CString filename);
-void InspectShape(const TopoDS_Shape& shape);
+STEPInfo InspectShape(const TopoDS_Shape& shape);
 

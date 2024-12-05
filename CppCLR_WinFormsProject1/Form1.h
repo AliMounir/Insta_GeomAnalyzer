@@ -84,6 +84,8 @@ namespace CppCLRWinFormsProject {
     private: System::Windows::Forms::TextBox^ textBox5;
     private: System::Windows::Forms::TextBox^ textBox3;
     private: System::Windows::Forms::Button^ button1;
+    private: System::Windows::Forms::TextBox^ textBox7;
+    private: System::Windows::Forms::TextBox^ textBox6;
            System::Windows::Forms::TextBox^ textBox2;
 
 
@@ -97,12 +99,15 @@ namespace CppCLRWinFormsProject {
             this->textBox1 = (gcnew System::Windows::Forms::TextBox());
             this->textBox2 = (gcnew System::Windows::Forms::TextBox());
             this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+            this->textBox6 = (gcnew System::Windows::Forms::TextBox());
+            this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
             // panel1
             // 
-            this->panel1->Controls->Add(this->button1);
+            this->panel1->Controls->Add(this->textBox7);
+            this->panel1->Controls->Add(this->textBox6);
             this->panel1->Controls->Add(this->textBox5);
             this->panel1->Controls->Add(this->textBox4);
             this->panel1->Controls->Add(this->textBox1);
@@ -116,13 +121,14 @@ namespace CppCLRWinFormsProject {
             // button1
             // 
             this->button1->BackColor = System::Drawing::SystemColors::ButtonHighlight;
-            this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.875F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+            this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+            this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->button1->ForeColor = System::Drawing::Color::LimeGreen;
-            this->button1->Location = System::Drawing::Point(936, 2);
+            this->button1->Location = System::Drawing::Point(1068, 15);
             this->button1->Margin = System::Windows::Forms::Padding(0);
             this->button1->Name = L"button1";
-            this->button1->Size = System::Drawing::Size(111, 23);
+            this->button1->Size = System::Drawing::Size(275, 31);
             this->button1->TabIndex = 4;
             this->button1->Text = L"Analysieren..";
             this->button1->UseVisualStyleBackColor = false;
@@ -136,7 +142,7 @@ namespace CppCLRWinFormsProject {
                 static_cast<System::Byte>(0)));
             this->textBox5->ForeColor = System::Drawing::SystemColors::Window;
             this->textBox5->Location = System::Drawing::Point(931, 546);
-            this->textBox5->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
+            this->textBox5->Margin = System::Windows::Forms::Padding(2);
             this->textBox5->Multiline = true;
             this->textBox5->Name = L"textBox5";
             this->textBox5->Size = System::Drawing::Size(115, 63);
@@ -151,8 +157,8 @@ namespace CppCLRWinFormsProject {
             this->textBox4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.125F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox4->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox4->Location = System::Drawing::Point(961, 26);
-            this->textBox4->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
+            this->textBox4->Location = System::Drawing::Point(3, 30);
+            this->textBox4->Margin = System::Windows::Forms::Padding(2);
             this->textBox4->Multiline = true;
             this->textBox4->Name = L"textBox4";
             this->textBox4->Size = System::Drawing::Size(86, 77);
@@ -169,7 +175,7 @@ namespace CppCLRWinFormsProject {
             this->textBox1->Location = System::Drawing::Point(3, 3);
             this->textBox1->Name = L"textBox1";
             this->textBox1->ReadOnly = true;
-            this->textBox1->Size = System::Drawing::Size(931, 22);
+            this->textBox1->Size = System::Drawing::Size(884, 22);
             this->textBox1->TabIndex = 1;
             this->textBox1->TabStop = false;
             // 
@@ -189,8 +195,8 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.875F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
-            this->textBox3->Location = System::Drawing::Point(1067, 15);
-            this->textBox3->Margin = System::Windows::Forms::Padding(2, 2, 2, 2);
+            this->textBox3->Location = System::Drawing::Point(1068, 57);
+            this->textBox3->Margin = System::Windows::Forms::Padding(2);
             this->textBox3->Multiline = true;
             this->textBox3->Name = L"textBox3";
             this->textBox3->ReadOnly = true;
@@ -198,12 +204,30 @@ namespace CppCLRWinFormsProject {
             this->textBox3->Size = System::Drawing::Size(275, 419);
             this->textBox3->TabIndex = 2;
             this->textBox3->TabStop = false;
+            this->textBox3->TextChanged += gcnew System::EventHandler(this, &Form1::textBox3_TextChanged);
+            // 
+            // textBox6
+            // 
+            this->textBox6->Location = System::Drawing::Point(893, 3);
+            this->textBox6->Name = L"textBox6";
+            this->textBox6->Size = System::Drawing::Size(100, 22);
+            this->textBox6->TabIndex = 4;
+            this->textBox6->TabStop = false;
+            this->textBox6->Text = L"Toleranzen: 1e-";
+            // 
+            // textBox7
+            // 
+            this->textBox7->Location = System::Drawing::Point(995, 3);
+            this->textBox7->Name = L"textBox7";
+            this->textBox7->Size = System::Drawing::Size(46, 22);
+            this->textBox7->TabIndex = 5;
             // 
             // Form1
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
+            this->Controls->Add(this->button1);
             this->Controls->Add(this->textBox3);
             this->Controls->Add(this->textBox2);
             this->Controls->Add(this->panel1);
@@ -285,7 +309,7 @@ namespace CppCLRWinFormsProject {
         this->textBox1->Text = gcnew System::String(stepFilePath);
         TopoDS_Shape importedShape = ImportSTEP(stepFilePath);
         //BRepTools::Clean(importedShape);
-        InspectShape(importedShape);
+        STEPInfo stepInfo = InspectShape(importedShape);
         TopoDS_Shape centeredShape = CenterShape(importedShape);
         GeomInfo bauteilInfo = getBasicInfo(centeredShape);
 
@@ -413,13 +437,13 @@ namespace CppCLRWinFormsProject {
 
 
         //Andere display text boxes infos
-        /*System::Text::StringBuilder^ sa = gcnew System::Text::StringBuilder();
-        sa->AppendLine("Abmaße: " + bauteilInfo.xDimension.ToString("F1") + "x" + bauteilInfo.yDimension.ToString("F1") + "x" + bauteilInfo.zDimension.ToString("F1") + "mm");
-        sa->AppendLine("Oberfläche: " + bauteilInfo.surfaceArea.ToString("F2") + " mm²");
-        sa->AppendLine("Volumen: " + bauteilInfo.volume.ToString("F2") + " mm³");
-        sa->AppendLine("Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm³  (" + (bauteilInfo.volumeRatio * 100).ToString("F2") + "%)");
-        sa->AppendLine(" ");
-        textBox344->Text = sa->ToString();*/
+        System::Text::StringBuilder^ sa = gcnew System::Text::StringBuilder();
+        sa->AppendLine(" - Solids: " + stepInfo.numSolids.ToString("D3"));
+        sa->AppendLine(" - Shells: " + stepInfo.numShells.ToString("D3"));
+        sa->AppendLine(" - Flächen: " + stepInfo.numFaces.ToString("D3"));
+        sa->AppendLine(" - Kanten: " + stepInfo.numEdges.ToString("D3"));
+        sa->AppendLine(" - Ecken: " + stepInfo.numVertices.ToString("D3"));
+        textBox4->Text = sa->ToString();
 
 
 
@@ -472,6 +496,8 @@ namespace CppCLRWinFormsProject {
     private: System::Void textBox4_TextChanged(System::Object^ sender, System::EventArgs^ e) {
     }
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }
 };
 }

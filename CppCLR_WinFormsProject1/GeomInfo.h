@@ -13,4 +13,12 @@ struct GeomInfo {
     double volumeRatio;
 };
 
+struct STEPInfo {
+    int numVertices;
+    int numEdges;
+    int numFaces;
+    int numShells;
+    int numSolids;
+};
+
 #endif // GEOMINFO_H

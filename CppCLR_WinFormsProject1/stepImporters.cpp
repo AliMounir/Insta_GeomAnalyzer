@@ -1,5 +1,7 @@
-#include "stepImporters.h"
 #include "pch.h"
+#include "stepImporters.h"
+#include "GeomInfo.h"
+
 
 
 // Notwendige Includes
@@ -31,43 +33,47 @@ TopoDS_Shape ImportSTEP(const Standard_CString filename) {
 
 }
 
-void InspectShape(const TopoDS_Shape& shape) {
-    int numVertices = 0;
-    int numEdges = 0;
-    int numFaces = 0;
-    int numShells = 0;
-    int numSolids = 0;
+STEPInfo InspectShape(const TopoDS_Shape& shape) {
+
+    STEPInfo infos;
+    infos.numVertices = 0;
+    infos.numEdges = 0;
+    infos.numFaces = 0;
+    infos.numShells = 0;
+    infos.numSolids = 0;
 
     // Zählen der Vertices
     for (TopExp_Explorer exp(shape, TopAbs_VERTEX); exp.More(); exp.Next()) {
-        numVertices++;
+        infos.numVertices++;
     }
 
     // Zählen der Edges
     for (TopExp_Explorer exp(shape, TopAbs_EDGE); exp.More(); exp.Next()) {
-        numEdges++;
+        infos.numEdges++;
     }
 
     // Zählen der Faces
     for (TopExp_Explorer exp(shape, TopAbs_FACE); exp.More(); exp.Next()) {
-        numFaces++;
+        infos.numFaces++;
     }
 
     // Zählen der Shells
     for (TopExp_Explorer exp(shape, TopAbs_SHELL); exp.More(); exp.Next()) {
-        numShells++;
+        infos.numShells++;
     }
 
     // Zählen der Solids
     for (TopExp_Explorer exp(shape, TopAbs_SOLID); exp.More(); exp.Next()) {
-        numSolids++;
+        infos.numSolids++;
     }
 
     std::cout << "Das Shape enthält:" << std::endl;
-    std::cout << "- Vertices: " << numVertices << std::endl;
-    std::cout << "- Edges: " << numEdges << std::endl;
-    std::cout << "- Faces: " << numFaces << std::endl;
-    std::cout << "- Shells: " << numShells << std::endl;
-    std::cout << "- Solids: " << numSolids << std::endl;
+    std::cout << "- Vertices: " << infos.numVertices << std::endl;
+    std::cout << "- Edges: " << infos.numEdges << std::endl;
+    std::cout << "- Faces: " << infos.numFaces << std::endl;
+    std::cout << "- Shells: " << infos.numShells << std::endl;
+    std::cout << "- Solids: " << infos.numSolids << std::endl;
+
+    return infos;
 }
 
