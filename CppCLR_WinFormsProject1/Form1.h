@@ -93,14 +93,14 @@ namespace CppCLRWinFormsProject {
         void InitializeComponent(void)
         {
             this->panel1 = (gcnew System::Windows::Forms::Panel());
-            this->button1 = (gcnew System::Windows::Forms::Button());
+            this->textBox7 = (gcnew System::Windows::Forms::TextBox());
+            this->textBox6 = (gcnew System::Windows::Forms::TextBox());
             this->textBox5 = (gcnew System::Windows::Forms::TextBox());
             this->textBox4 = (gcnew System::Windows::Forms::TextBox());
             this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+            this->button1 = (gcnew System::Windows::Forms::Button());
             this->textBox2 = (gcnew System::Windows::Forms::TextBox());
             this->textBox3 = (gcnew System::Windows::Forms::TextBox());
-            this->textBox6 = (gcnew System::Windows::Forms::TextBox());
-            this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
@@ -118,21 +118,21 @@ namespace CppCLRWinFormsProject {
             this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::panel1_Paint);
             this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
             // 
-            // button1
+            // textBox7
             // 
-            this->button1->BackColor = System::Drawing::SystemColors::ButtonHighlight;
-            this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-            this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(0)));
-            this->button1->ForeColor = System::Drawing::Color::LimeGreen;
-            this->button1->Location = System::Drawing::Point(1068, 15);
-            this->button1->Margin = System::Windows::Forms::Padding(0);
-            this->button1->Name = L"button1";
-            this->button1->Size = System::Drawing::Size(275, 31);
-            this->button1->TabIndex = 4;
-            this->button1->Text = L"Analysieren..";
-            this->button1->UseVisualStyleBackColor = false;
-            this->button1->Click += gcnew System::EventHandler(this, &Form1::button1_Click);
+            this->textBox7->Location = System::Drawing::Point(1000, 3);
+            this->textBox7->Name = L"textBox7";
+            this->textBox7->Size = System::Drawing::Size(46, 22);
+            this->textBox7->TabIndex = 5;
+            // 
+            // textBox6
+            // 
+            this->textBox6->Location = System::Drawing::Point(893, 3);
+            this->textBox6->Name = L"textBox6";
+            this->textBox6->Size = System::Drawing::Size(100, 22);
+            this->textBox6->TabIndex = 4;
+            this->textBox6->TabStop = false;
+            this->textBox6->Text = L"Toleranzen: 1e-";
             // 
             // textBox5
             // 
@@ -141,14 +141,14 @@ namespace CppCLRWinFormsProject {
             this->textBox5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.125F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox5->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox5->Location = System::Drawing::Point(931, 546);
+            this->textBox5->Location = System::Drawing::Point(953, 546);
             this->textBox5->Margin = System::Windows::Forms::Padding(2);
             this->textBox5->Multiline = true;
             this->textBox5->Name = L"textBox5";
-            this->textBox5->Size = System::Drawing::Size(115, 63);
+            this->textBox5->Size = System::Drawing::Size(93, 63);
             this->textBox5->TabIndex = 3;
             this->textBox5->TabStop = false;
-            this->textBox5->Text = L" SP (000,000,000)\r\n HA1 (000/000/000)\r\n HA2 (000/000/000)\r\n HA3 (000/000/000)";
+            this->textBox5->Text = L" SP (00,00,00)\r\n HA1 (0/0/0)\r\n HA2 (0/0/0)\r\n HA3 (0/0/0)";
             // 
             // textBox4
             // 
@@ -179,6 +179,22 @@ namespace CppCLRWinFormsProject {
             this->textBox1->TabIndex = 1;
             this->textBox1->TabStop = false;
             // 
+            // button1
+            // 
+            this->button1->BackColor = System::Drawing::SystemColors::ButtonHighlight;
+            this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+            this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
+            this->button1->ForeColor = System::Drawing::Color::LimeGreen;
+            this->button1->Location = System::Drawing::Point(1068, 15);
+            this->button1->Margin = System::Windows::Forms::Padding(0);
+            this->button1->Name = L"button1";
+            this->button1->Size = System::Drawing::Size(275, 40);
+            this->button1->TabIndex = 4;
+            this->button1->Text = L"Analysieren..";
+            this->button1->UseVisualStyleBackColor = false;
+            this->button1->Click += gcnew System::EventHandler(this, &Form1::button1_Click);
+            // 
             // textBox2
             // 
             this->textBox2->BackColor = System::Drawing::SystemColors::InfoText;
@@ -195,32 +211,16 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.875F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
-            this->textBox3->Location = System::Drawing::Point(1068, 57);
+            this->textBox3->Location = System::Drawing::Point(1068, 68);
             this->textBox3->Margin = System::Windows::Forms::Padding(2);
             this->textBox3->Multiline = true;
             this->textBox3->Name = L"textBox3";
             this->textBox3->ReadOnly = true;
             this->textBox3->RightToLeft = System::Windows::Forms::RightToLeft::No;
-            this->textBox3->Size = System::Drawing::Size(275, 419);
+            this->textBox3->Size = System::Drawing::Size(275, 483);
             this->textBox3->TabIndex = 2;
             this->textBox3->TabStop = false;
             this->textBox3->TextChanged += gcnew System::EventHandler(this, &Form1::textBox3_TextChanged);
-            // 
-            // textBox6
-            // 
-            this->textBox6->Location = System::Drawing::Point(893, 3);
-            this->textBox6->Name = L"textBox6";
-            this->textBox6->Size = System::Drawing::Size(100, 22);
-            this->textBox6->TabIndex = 4;
-            this->textBox6->TabStop = false;
-            this->textBox6->Text = L"Toleranzen: 1e-";
-            // 
-            // textBox7
-            // 
-            this->textBox7->Location = System::Drawing::Point(995, 3);
-            this->textBox7->Name = L"textBox7";
-            this->textBox7->Size = System::Drawing::Size(46, 22);
-            this->textBox7->TabIndex = 5;
             // 
             // Form1
             // 
@@ -444,6 +444,13 @@ namespace CppCLRWinFormsProject {
         sa->AppendLine(" - Kanten: " + stepInfo.numEdges.ToString("D3"));
         sa->AppendLine(" - Ecken: " + stepInfo.numVertices.ToString("D3"));
         textBox4->Text = sa->ToString();
+
+        System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
+        sc->AppendLine(" SP (" + bauteilInfo.center.X().ToString("F1") + "/" + bauteilInfo.center.Y().ToString("F1") + "/" + bauteilInfo.center.Z().ToString("F1") + ")");
+        sc->AppendLine(" HTA1 (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
+        sc->AppendLine(" HTA2 (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
+        sc->AppendLine(" HTA3 (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
+        textBox5->Text = sc->ToString();
 
 
 

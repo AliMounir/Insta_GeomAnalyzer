@@ -1,11 +1,14 @@
 #pragma once
 // GeomInfo.h
+#include <gp_Pnt.hxx>
+
 #ifndef GEOMINFO_H
 #define GEOMINFO_H
 
 struct GeomInfo {
     double surfaceArea;
     double volume;
+    gp_Pnt center;
     double xDimension;
     double yDimension;
     double zDimension;

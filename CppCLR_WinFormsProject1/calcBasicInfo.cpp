@@ -11,6 +11,8 @@
 
 #include <TopoDS_Shape.hxx>
 #include <Bnd_Box.hxx>
+#include <gp_Pnt.hxx>
+
 
 
 
@@ -23,10 +25,12 @@ GeomInfo getBasicInfo(const TopoDS_Shape& shape) {
     BRepGProp::SurfaceProperties(shape, surfaceProps);
     info.surfaceArea = surfaceProps.Mass();
 
+
     // Calculate the volume
     GProp_GProps volumeProps;
     BRepGProp::VolumeProperties(shape, volumeProps);
     info.volume = volumeProps.Mass();
+    info.center = volumeProps.CentreOfMass();
 
     // Berechnung der Bounding Box für die Abmaße
     Bnd_Box boundingBox;
