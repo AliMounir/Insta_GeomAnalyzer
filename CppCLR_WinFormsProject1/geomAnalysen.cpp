@@ -501,7 +501,7 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
             }
         }
 
-        double modeValue = FindModeValue(lengths, 0.1);
+        double modeValue = FindModeValue(lengths, 2);
         std::cout << "Mode Length: " << modeValue << std::endl;
 
         // Step 5: Compare each length to the mode value
