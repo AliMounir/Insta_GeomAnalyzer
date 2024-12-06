@@ -371,6 +371,7 @@ namespace CppCLRWinFormsProject {
     }
            private: void ResetForNewAnalysis() {
                // Clear old shapes
+               std::cout << "Analysis started.. " << std::endl;
                myAISContext->EraseAll(Standard_True);
                myAISContext->UpdateCurrentViewer();
                myView->FitAll();
@@ -402,6 +403,7 @@ namespace CppCLRWinFormsProject {
                myAISContext->UpdateCurrentViewer();
 
                // Clear output TextBox
+               std::cout.flush();
                textBox2->Clear();
            }
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -464,7 +466,7 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     double symmetrieMid = CheckLinSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 2, samplingLines2);
     double symmetrieMin = CheckLinSymmetry(centeredShape, mainAxis, minAxis, samplingAmount * 2, samplingLines3);
     double gesamtSymmetrie = (symmetrieMin + symmetrieMid) / 2;
-    double rotSym = CheckRotSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 4, samplingLines4);
+    double rotSym = CheckRotSymmetry(centeredShape, mainAxis, midAxis, samplingAmount, samplingLines4);
 
 
     double wandStaerke = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[0];

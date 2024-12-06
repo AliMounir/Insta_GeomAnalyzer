@@ -483,36 +483,57 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
         }
 
         // Step 4: Compute the mode value of the lengths
-        // Determine an appropriate bin size
-        double minLength = *std::min_element(lengths.begin(), lengths.end());
-        double maxLength = *std::max_element(lengths.begin(), lengths.end());
-        double lengthRange = maxLength - minLength;
-        std::cout << "maxLength " << maxLength << " MINLength: " << minLength << std::endl;
+        //double minLength = *std::min_element(lengths.begin(), lengths.end());
+        //double maxLength = *std::max_element(lengths.begin(), lengths.end());
+        //double lengthRange = maxLength - minLength;
+        //std::cout << "maxLength " << maxLength << " MINLength: " << minLength << std::endl;
 
-        if (lengthRange == 0.0) {
-            // All lengths are equal, perfect symmetry
-            if (maxLength == 0.0) {
-                // All lengths are zero, symmetry cannot be determined
-                return 0.0;
-            }
-            else {
-                // All lengths are equal and non-zero
-                return 1.0;
-            }
+        //if (lengthRange == 0.0) {
+        //    // All lengths are equal, perfect symmetry
+        //    if (maxLength == 0.0) {
+        //        // All lengths are zero, symmetry cannot be determined
+        //        return 0.0;
+        //    }
+        //    else {
+        //        // All lengths are equal and non-zero
+        //        return 1.0;
+        //    }
+        //}
+
+        //double modeValue = FindModeValue(lengths, 2);
+        //std::cout << "Mode Length: " << modeValue << std::endl;
+
+        //std::sort(lengths.begin(), lengths.end());
+
+        // Step 5: Compare each length to the MEDIAN value
+        double medianValue = 0.0;
+        if (lengths.size() == 0) {
+            // no lengths, no symmetry
+            return 0.0;
+        }
+        else if (lengths.size() % 2 == 1) {
+            // Odd number of elements
+            medianValue = lengths[lengths.size() / 2];
+        }
+        else {
+            // Even number of elements
+            medianValue = (lengths[(lengths.size() / 2) - 1] + lengths[lengths.size() / 2]) / 2.0;
         }
 
-        double modeValue = FindModeValue(lengths, 2);
-        std::cout << "Mode Length: " << modeValue << std::endl;
+        std::cout << "Median Length: " << medianValue << std::endl;
 
-        // Step 5: Compare each length to the mode value
         std::vector<double> scores;
         for (double length : lengths) {
-            if (modeValue == 0.0) {
-                scores.push_back(0.0);
+            if (medianValue == 0.0) {
+                scores.push_back(0.0); // If median is zero, can't compute ratio meaningfully
                 continue;
             }
-            double ratio = std::min(length, modeValue) / std::max(length, modeValue);
-            scores.push_back(ratio);
+            double ratio = std::min(length, medianValue) / std::max(length, medianValue);
+            double diff = std::abs(length - medianValue);
+            double relativeDiff = diff / medianValue; // difference as a fraction of median
+            double factor = 8.0; // adjust to penalize more
+            double score = 1.0 / (1.0 + relativeDiff * factor);
+            scores.push_back(score);
         }
 
         // Step 6: Compute the overall symmetry score
