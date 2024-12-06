@@ -623,9 +623,9 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 
     System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
     sc->AppendLine(" SP (" + bauteilInfo.center.X().ToString("F1") + "/" + bauteilInfo.center.Y().ToString("F1") + "/" + bauteilInfo.center.Z().ToString("F1") + ")");
-    sc->AppendLine(" HTA1 (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
-    sc->AppendLine(" HTA2 (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
-    sc->AppendLine(" HTA3 (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
+    sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
+    sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
+    sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
     textBox5->Text = sc->ToString();
 
 
