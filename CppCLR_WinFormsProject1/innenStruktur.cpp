@@ -89,7 +89,7 @@ std::vector<gp_Lin> CreateSunRays(const gp_Pnt& origin, int numSamplings) {
 double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& startPoint, std::vector<gp_Pnt>& visitedPoints, std::vector<gp_Lin>& samplingLines, int recursionDepth = 0) {
     
     
-    const int maxRecursionDepth = 10;
+    const int maxRecursionDepth = 8;
     if (recursionDepth > maxRecursionDepth) {
         return 1.0;
     }
@@ -120,6 +120,9 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
     double totalScore = 0.0;
     int validLines = 0;
 
+    bool highFragment = false;
+    int noIntersectCount = 0;
+
     for (const auto& line : sunRays) {
         lineIndex++;
         samplingLines.push_back(line);
@@ -133,13 +136,17 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
             });
 
         int numIntersections = static_cast<int>(intersectionPoints.size());
-
         std::cout << "Sampling-Linie " << lineIndex << ": " << numIntersections << " Schnittpunkte gefunden." << std::endl;
 
+        if (numIntersections == 0) {
+            noIntersectCount++;
+        }
         // Falls mehr als 20 Schnittpunkte gefunden wurden, abbrechen und 1.0 zurückgeben
         if (numIntersections > 20) {
             //min. 15% der Rays können raus gehen
-            return 1.0;
+            highFragment = true;
+            break;
+            //return 1.0;
         }
 
         if (isInside) {
@@ -190,6 +197,18 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
                 totalScore += innerScore;
                 validLines++;
             }
+        }
+    }
+
+    // After processing all lines or breaking out
+    if (highFragment) {
+        // Check the 15% condition
+        double fractionNoIntersect = (double)noIntersectCount / (double)numSamplings;
+        if (fractionNoIntersect >= 0.15) {
+            return 0.0;
+        }
+        else {
+            return 1.0;
         }
     }
 
