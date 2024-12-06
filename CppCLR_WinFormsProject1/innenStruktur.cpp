@@ -89,7 +89,7 @@ std::vector<gp_Lin> CreateSunRays(const gp_Pnt& origin, int numSamplings) {
 double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& startPoint, std::vector<gp_Pnt>& visitedPoints, std::vector<gp_Lin>& samplingLines, int recursionDepth = 0) {
     
     
-    const int maxRecursionDepth = 6;
+    const int maxRecursionDepth = 10;
     if (recursionDepth > maxRecursionDepth) {
         return 1.0;
     }
@@ -138,6 +138,7 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
 
         // Falls mehr als 20 Schnittpunkte gefunden wurden, abbrechen und 1.0 zurückgeben
         if (numIntersections > 20) {
+            //min. 15% der Rays können raus gehen
             return 1.0;
         }
 
@@ -170,7 +171,7 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
                 totalScore += 0.0;
                 validLines++;
             }
-            if (numIntersections == 4 || numIntersections == 3) {
+            if (numIntersections == 3 || numIntersections == 4) {
                 // es gibt einen hohlraum und wir befinden uns gerade in dem (3 als face fail safe)
                 totalScore += 1.0;
                 validLines++;

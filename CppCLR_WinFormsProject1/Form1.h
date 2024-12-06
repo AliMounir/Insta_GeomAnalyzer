@@ -106,6 +106,7 @@ namespace CppCLRWinFormsProject {
     private: System::Windows::Forms::TextBox^ textBox6;
     private: System::Windows::Forms::TextBox^ textBox8;
     private: System::Windows::Forms::TextBox^ textBox9;
+    private: System::Windows::Forms::TextBox^ textBox10;
            System::Windows::Forms::TextBox^ textBox2;
 
 
@@ -123,6 +124,7 @@ namespace CppCLRWinFormsProject {
             this->textBox3 = (gcnew System::Windows::Forms::TextBox());
             this->textBox8 = (gcnew System::Windows::Forms::TextBox());
             this->textBox9 = (gcnew System::Windows::Forms::TextBox());
+            this->textBox10 = (gcnew System::Windows::Forms::TextBox());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
@@ -250,7 +252,7 @@ namespace CppCLRWinFormsProject {
             this->textBox3->Name = L"textBox3";
             this->textBox3->ReadOnly = true;
             this->textBox3->RightToLeft = System::Windows::Forms::RightToLeft::No;
-            this->textBox3->Size = System::Drawing::Size(275, 416);
+            this->textBox3->Size = System::Drawing::Size(275, 432);
             this->textBox3->TabIndex = 2;
             this->textBox3->TabStop = false;
             this->textBox3->Text = L" -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n "
@@ -261,37 +263,57 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
-            this->textBox8->Location = System::Drawing::Point(1068, 530);
+            this->textBox8->Location = System::Drawing::Point(1068, 517);
             this->textBox8->Margin = System::Windows::Forms::Padding(2);
             this->textBox8->Multiline = true;
             this->textBox8->Name = L"textBox8";
             this->textBox8->ReadOnly = true;
             this->textBox8->RightToLeft = System::Windows::Forms::RightToLeft::No;
-            this->textBox8->Size = System::Drawing::Size(275, 267);
+            this->textBox8->Size = System::Drawing::Size(275, 132);
             this->textBox8->TabIndex = 5;
             this->textBox8->TabStop = false;
-            this->textBox8->Text = L"\r\n CNC-Fräsen: 00,00%\r\n CNC-Drehen: 00,00%\r\n CNC-Blech: 00,00%\r\n Rohrlaser: 00,00"
-                L"%\r\n Additive: 00,00%";
+            this->textBox8->Text = L" CNC-Fräsen: 00,00%\r\n CNC-Drehen: 00,00%\r\n CNC-Blech: 00,00%\r\n Biegeblech: 00,00%"
+                L"\r\n Rohrlaser: 00,00%\r\n Additive Fertigung: 00,00%";
             // 
             // textBox9
             // 
+            this->textBox9->BackColor = System::Drawing::SystemColors::MenuHighlight;
             this->textBox9->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-            this->textBox9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+            this->textBox9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 16.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
-            this->textBox9->Location = System::Drawing::Point(1145, 513);
+            this->textBox9->ForeColor = System::Drawing::SystemColors::Window;
+            this->textBox9->Location = System::Drawing::Point(1069, 709);
             this->textBox9->Name = L"textBox9";
-            this->textBox9->Size = System::Drawing::Size(110, 27);
+            this->textBox9->Size = System::Drawing::Size(274, 38);
             this->textBox9->TabIndex = 6;
             this->textBox9->TabStop = false;
-            this->textBox9->Text = L"Ergebnisse";
+            this->textBox9->Text = L"Ergebnis Verfahren";
             this->textBox9->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
             this->textBox9->TextChanged += gcnew System::EventHandler(this, &Form1::textBox9_TextChanged);
+            // 
+            // textBox10
+            // 
+            this->textBox10->BorderStyle = System::Windows::Forms::BorderStyle::None;
+            this->textBox10->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
+            this->textBox10->Location = System::Drawing::Point(1097, 687);
+            this->textBox10->Margin = System::Windows::Forms::Padding(2);
+            this->textBox10->Multiline = true;
+            this->textBox10->Name = L"textBox10";
+            this->textBox10->ReadOnly = true;
+            this->textBox10->RightToLeft = System::Windows::Forms::RightToLeft::No;
+            this->textBox10->Size = System::Drawing::Size(222, 17);
+            this->textBox10->TabIndex = 7;
+            this->textBox10->TabStop = false;
+            this->textBox10->Text = L"am besten für das Bauteil geeignet:";
+            this->textBox10->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
             // 
             // Form1
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
+            this->Controls->Add(this->textBox10);
             this->Controls->Add(this->textBox9);
             this->Controls->Add(this->textBox8);
             this->Controls->Add(this->button1);
@@ -563,7 +585,7 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     sb->AppendLine(" ");
     sb->AppendLine("----------------------------------------------------------------");
     sb->AppendLine(" ");
-    //sb->AppendLine("Biegungen: " + (profileScore*100).ToString("F2") + "%");
+    sb->AppendLine("Biegungen: XXXX");
     sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
     textBox3->Text = sb->ToString();
 
@@ -586,7 +608,7 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     // Use half of the bounding box length for the lines
     double length = boundingBoxLength / 2.0;
 
-    for (const auto& line : samplingLines2) {
+    for (const auto& line : samplingLines6) {
         // Define the start and end points of the line segment
         gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
         gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
