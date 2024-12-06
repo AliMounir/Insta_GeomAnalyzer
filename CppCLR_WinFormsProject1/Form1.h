@@ -6,6 +6,7 @@
 #include "geomAnalysen.h"
 #include "GeomInfo.h"
 #include "innenStruktur.h"
+#include "verfahrensBerechnung.h"
 #include "TextBoxStreamBuf.h"
 #include <iostream>
 
@@ -150,7 +151,7 @@ namespace CppCLRWinFormsProject {
             this->textBox7->Size = System::Drawing::Size(36, 22);
             this->textBox7->TabIndex = 5;
             this->textBox7->TabStop = false;
-            this->textBox7->Text = L"3";
+            this->textBox7->Text = L"1";
             this->textBox7->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
             // 
             // textBox6
@@ -556,6 +557,10 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 
 
 
+    //Verfahrensberechnungen
+    double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
+    double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSym, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
+
 
 
 
@@ -588,6 +593,17 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     sb->AppendLine("Biegungen: XXXX");
     sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
     textBox3->Text = sb->ToString();
+
+
+
+    System::Text::StringBuilder^ sd = gcnew System::Text::StringBuilder();
+    sd->AppendLine(" CNC-Fräsen: " + (fraesen * 100).ToString("F2") + "%");
+    sd->AppendLine(" CNC-Drehen: " + (rohrlaser * 100).ToString("F2") + "%");
+    sd->AppendLine(" CNC-Blech: " + (rohrlaser * 100).ToString("F2") + "%");
+    sd->AppendLine(" Biegeblech: " + (rohrlaser * 100).ToString("F2") + "%");
+    sd->AppendLine(" Rohrlaser: " + (rohrlaser * 100).ToString("F2") + "%");
+    sd->AppendLine(" Additive: " + (rohrlaser * 100).ToString("F2") + "%");
+    textBox8->Text = sd->ToString();
 
 
 

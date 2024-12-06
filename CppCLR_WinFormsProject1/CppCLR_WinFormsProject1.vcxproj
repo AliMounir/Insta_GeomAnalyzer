@@ -152,6 +152,7 @@ TKFillet.lib
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stepImporters.h" />
     <ClInclude Include="TextBoxStreamBuf.h" />
+    <ClInclude Include="verfahrensBerechnung.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
@@ -167,6 +168,7 @@ TKFillet.lib
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="stepImporters.cpp" />
+    <ClCompile Include="verfahrensBerechnung.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
