@@ -104,6 +104,8 @@ namespace CppCLRWinFormsProject {
     private: System::Windows::Forms::Button^ button1;
     private: System::Windows::Forms::TextBox^ textBox7;
     private: System::Windows::Forms::TextBox^ textBox6;
+    private: System::Windows::Forms::TextBox^ textBox8;
+    private: System::Windows::Forms::TextBox^ textBox9;
            System::Windows::Forms::TextBox^ textBox2;
 
 
@@ -119,6 +121,8 @@ namespace CppCLRWinFormsProject {
             this->button1 = (gcnew System::Windows::Forms::Button());
             this->textBox2 = (gcnew System::Windows::Forms::TextBox());
             this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+            this->textBox8 = (gcnew System::Windows::Forms::TextBox());
+            this->textBox9 = (gcnew System::Windows::Forms::TextBox());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
@@ -253,11 +257,43 @@ namespace CppCLRWinFormsProject {
                 L"- \r\n -\r\n -\r\n -\r\n - \r\n -\r\n";
             this->textBox3->TextChanged += gcnew System::EventHandler(this, &Form1::textBox3_TextChanged);
             // 
+            // textBox8
+            // 
+            this->textBox8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
+            this->textBox8->Location = System::Drawing::Point(1068, 530);
+            this->textBox8->Margin = System::Windows::Forms::Padding(2);
+            this->textBox8->Multiline = true;
+            this->textBox8->Name = L"textBox8";
+            this->textBox8->ReadOnly = true;
+            this->textBox8->RightToLeft = System::Windows::Forms::RightToLeft::No;
+            this->textBox8->Size = System::Drawing::Size(275, 267);
+            this->textBox8->TabIndex = 5;
+            this->textBox8->TabStop = false;
+            this->textBox8->Text = L"\r\n CNC-Fr‰sen: 00,00%\r\n CNC-Drehen: 00,00%\r\n CNC-Blech: 00,00%\r\n Rohrlaser: 00,00"
+                L"%\r\n Additive: 00,00%";
+            // 
+            // textBox9
+            // 
+            this->textBox9->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+            this->textBox9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
+            this->textBox9->Location = System::Drawing::Point(1145, 513);
+            this->textBox9->Name = L"textBox9";
+            this->textBox9->Size = System::Drawing::Size(110, 27);
+            this->textBox9->TabIndex = 6;
+            this->textBox9->TabStop = false;
+            this->textBox9->Text = L"Ergebnisse";
+            this->textBox9->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
+            this->textBox9->TextChanged += gcnew System::EventHandler(this, &Form1::textBox9_TextChanged);
+            // 
             // Form1
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
+            this->Controls->Add(this->textBox9);
+            this->Controls->Add(this->textBox8);
             this->Controls->Add(this->button1);
             this->Controls->Add(this->textBox3);
             this->Controls->Add(this->textBox2);
@@ -454,6 +490,9 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     gp_Dir mainAxis = GetPrincipalInertiaAxes(centeredShape)[0];
     gp_Dir midAxis = GetPrincipalInertiaAxes(centeredShape)[1];
     gp_Dir minAxis = GetPrincipalInertiaAxes(centeredShape)[2];
+    double l‰nge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
+    double durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
+    double durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);
 
     double parallelit‰tGroﬂFl‰chen = FindLargestFacesAndCheckParallel(centeredShape);
 
@@ -637,6 +676,8 @@ private: System::Void Form1_FormClosing(System::Object^ sender, System::Windows:
                // Call base class OnFormClosing to ensure the form closes
                System::Windows::Forms::Form::OnFormClosing(e);
            }
+private: System::Void textBox9_TextChanged(System::Object^ sender, System::EventArgs^ e) {
+}
 };
 }
 
