@@ -559,6 +559,7 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 
     //Verfahrensberechnungen
     double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
+    double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSym, profileScore, bauteilInfo.volumeRatio, innenStruktur, zweifachKrümmungsAnteil, einfachKrümmungsAnteil, andererAnteil, planarAnteil);
     double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSym, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
 
 
@@ -598,7 +599,7 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 
     System::Text::StringBuilder^ sd = gcnew System::Text::StringBuilder();
     sd->AppendLine(" CNC-Fräsen: " + (fraesen * 100).ToString("F2") + "%");
-    sd->AppendLine(" CNC-Drehen: " + (rohrlaser * 100).ToString("F2") + "%");
+    sd->AppendLine(" CNC-Drehen: " + (drehen * 100).ToString("F2") + "%");
     sd->AppendLine(" CNC-Blech: " + (rohrlaser * 100).ToString("F2") + "%");
     sd->AppendLine(" Biegeblech: " + (rohrlaser * 100).ToString("F2") + "%");
     sd->AppendLine(" Rohrlaser: " + (rohrlaser * 100).ToString("F2") + "%");
