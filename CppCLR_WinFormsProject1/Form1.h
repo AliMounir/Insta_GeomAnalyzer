@@ -6,6 +6,8 @@
 #include "geomAnalysen.h"
 #include "GeomInfo.h"
 #include "innenStruktur.h"
+#include "TextBoxStreamBuf.h"
+#include <iostream>
 
 #include <Graphic3d_GraphicDriver.hxx>
 #include <AIS_InteractiveContext.hxx>
@@ -54,19 +56,32 @@ namespace CppCLRWinFormsProject {
         Form1(void)
         {
             InitializeComponent();
-        }
 
+            textBoxStreamBuf = new TextBoxStreamBuf(this, textBox2);
+            oldBuf = std::cout.rdbuf(textBoxStreamBuf);
+        }
     protected:
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
         ~Form1()
         {
+            /*std::cout.flush();
+            if (textBoxStreamBuf) {
+                std::cout.rdbuf(oldBuf);
+                delete textBoxStreamBuf;
+                textBoxStreamBuf = nullptr;
+            }
+
             if (components)
             {
                 delete components;
-            }
+            }*/
         }
+    
+    private:
+        TextBoxStreamBuf* textBoxStreamBuf;
+        std::streambuf* oldBuf;
     protected:
 
     private:
@@ -124,6 +139,7 @@ namespace CppCLRWinFormsProject {
             this->textBox7->Name = L"textBox7";
             this->textBox7->Size = System::Drawing::Size(46, 22);
             this->textBox7->TabIndex = 5;
+            this->textBox7->Text = L"3";
             // 
             // textBox6
             // 
@@ -200,6 +216,7 @@ namespace CppCLRWinFormsProject {
             this->textBox2->BackColor = System::Drawing::SystemColors::InfoText;
             this->textBox2->ForeColor = System::Drawing::SystemColors::Window;
             this->textBox2->Location = System::Drawing::Point(12, 631);
+            this->textBox2->MaxLength = 65534;
             this->textBox2->Multiline = true;
             this->textBox2->Name = L"textBox2";
             this->textBox2->ReadOnly = true;
@@ -236,6 +253,7 @@ namespace CppCLRWinFormsProject {
             this->Load += gcnew System::EventHandler(this, &Form1::Form1_Load);
             this->Shown += gcnew System::EventHandler(this, &Form1::Form1_Shown);
             this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::Form1_Paint);
+            this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Form1::Form1_FormClosing);
             this->panel1->ResumeLayout(false);
             this->panel1->PerformLayout();
             this->ResumeLayout(false);
@@ -246,10 +264,10 @@ namespace CppCLRWinFormsProject {
     private: System::Void Form1_Load(System::Object^ sender, System::EventArgs^ e) {
 
         // Entfernen des Konsolenfensters
-     if (AllocConsole()) {
+     /*if (AllocConsole()) {
          FILE* pCout;
          freopen_s(&pCout, "CONOUT$", "w", stdout);
-     }
+     }*/
         // Beispielausgabe
         std::cout << "Anwendung gestartet..." << std::endl;
 
@@ -363,32 +381,32 @@ namespace CppCLRWinFormsProject {
 
         //Ergebnisse Tabelle
         System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder();
-        sb->AppendLine("Abmaße: " + bauteilInfo.xDimension.ToString("F1") + "x" + bauteilInfo.yDimension.ToString("F1") + "x" + bauteilInfo.zDimension.ToString("F1") + "mm");
-        sb->AppendLine("Oberfläche: " + bauteilInfo.surfaceArea.ToString("F2") + " mm²");
-        sb->AppendLine("Volumen: " + bauteilInfo.volume.ToString("F2") + " mm³");
-        sb->AppendLine("Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm³  (" + (bauteilInfo.volumeRatio*100).ToString("F2") + "%)");
+        sb->AppendLine(" Abmaße: " + bauteilInfo.xDimension.ToString("F1") + "x" + bauteilInfo.yDimension.ToString("F1") + "x" + bauteilInfo.zDimension.ToString("F1") + "mm");
+        sb->AppendLine(" Oberfläche: " + bauteilInfo.surfaceArea.ToString("F2") + " mm²");
+        sb->AppendLine(" Volumen: " + bauteilInfo.volume.ToString("F2") + " mm³");
+        sb->AppendLine(" Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm³  (" + (bauteilInfo.volumeRatio*100).ToString("F2") + "%)");
         sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" ");
-        sb->AppendLine("Parallelität (Hauptflächen): " + (parallelitätGroßFlächen).ToString("F1"));
-        sb->AppendLine("x-Symmetrie (2.HTA): " + (symmetrieMid*100).ToString("F2") + "%");
-        sb->AppendLine("y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
-        sb->AppendLine("Ø Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
-        sb->AppendLine("Rotationssymmetrie: " + (rotSym*100).ToString("F2") + "%");
-        sb->AppendLine("Wandstärke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent*100).ToString("F2") + "%)");
+        sb->AppendLine(" Parallelität (Hauptflächen): " + (parallelitätGroßFlächen).ToString("F1"));
+        sb->AppendLine(" x-Symmetrie (2.HTA): " + (symmetrieMid*100).ToString("F2") + "%");
+        sb->AppendLine(" y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
+        sb->AppendLine(" Ø Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
+        sb->AppendLine(" Rotationssymmetrie: " + (rotSym*100).ToString("F2") + "%");
+        sb->AppendLine(" Wandstärke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent*100).ToString("F2") + "%)");
         sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" ");
-        sb->AppendLine("Profilerkennung: " + (profileScore*100).ToString("F2") + "%");
-        sb->AppendLine("Planare Flächen: " + (planarAnteil*100).ToString("F2") + "%");
-        sb->AppendLine("1x-Gekrümmte Flächen: " + (einfachKrümmungsAnteil*100).ToString("F2") + "%");
-        sb->AppendLine("2x-Gekrümmte Flächen: " + (zweifachKrümmungsAnteil*100).ToString("F2") + "%");
-        sb->AppendLine("Andere Flächenanteile: " + (andererAnteil*100).ToString("F2") + "%");
+        sb->AppendLine(" Profilerkennung: " + (profileScore*100).ToString("F2") + "%");
+        sb->AppendLine(" Planare Flächen: " + (planarAnteil*100).ToString("F2") + "%");
+        sb->AppendLine(" 1x-Gekrümmte Flächen: " + (einfachKrümmungsAnteil*100).ToString("F2") + "%");
+        sb->AppendLine(" 2x-Gekrümmte Flächen: " + (zweifachKrümmungsAnteil*100).ToString("F2") + "%");
+        sb->AppendLine(" Andere Flächenanteile: " + (andererAnteil*100).ToString("F2") + "%");
         sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" ");
         //sb->AppendLine("Biegungen: " + (profileScore*100).ToString("F2") + "%");
-        sb->AppendLine("int. Geschlossenheit: " + (innenStruktur*100).ToString("F2") + "%");
+        sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur*100).ToString("F2") + "%");
         textBox3->Text = sb->ToString();
 
 
@@ -500,12 +518,39 @@ namespace CppCLRWinFormsProject {
     }
     private: System::Windows::Forms::TextBox^ textBoxFilePath;
 
+    
+
     private: System::Void textBox4_TextChanged(System::Object^ sender, System::EventArgs^ e) {
     }
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 }
 private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }
+private: System::Void Form1_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
+    std::cout.flush();
+
+    if (textBoxStreamBuf) {
+        std::cout.rdbuf(oldBuf); // Restore original buffer
+        delete textBoxStreamBuf; // Delete the custom stream buffer
+        textBoxStreamBuf = nullptr;
+    }
+
+    if (components) {
+        delete components;
+    }
+}
+       protected:
+           virtual void OnFormClosing(System::Windows::Forms::FormClosingEventArgs^ e) override {
+               std::cout.flush(); // Flush the output
+               if (textBoxStreamBuf) {
+                   std::cout.rdbuf(oldBuf); // Restore original stream buffer
+                   delete textBoxStreamBuf; // Delete custom stream buffer
+                   textBoxStreamBuf = nullptr;
+               }
+
+               // Call base class OnFormClosing to ensure the form closes
+               System::Windows::Forms::Form::OnFormClosing(e);
+           }
 };
 }
 

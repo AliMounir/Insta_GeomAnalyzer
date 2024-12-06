@@ -44,6 +44,9 @@
     <ClInclude Include="innenStruktur.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextBoxStreamBuf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CppCLR_WinFormsProject.cpp">

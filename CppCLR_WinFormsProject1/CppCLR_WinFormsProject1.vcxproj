@@ -150,6 +150,7 @@ TKFillet.lib
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stepImporters.h" />
+    <ClInclude Include="TextBoxStreamBuf.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
