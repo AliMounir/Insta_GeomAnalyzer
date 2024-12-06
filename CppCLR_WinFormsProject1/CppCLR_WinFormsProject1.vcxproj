@@ -147,6 +147,7 @@ TKFillet.lib
     <ClInclude Include="geomAnalysen.h" />
     <ClInclude Include="GeomInfo.h" />
     <ClInclude Include="innenStruktur.h" />
+    <ClInclude Include="loadViewElements.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stepImporters.h" />

@@ -33,9 +33,12 @@
 #include <iostream>
 #include <streambuf>
 #include <ostream>
-#include <string>
 #include <set>
 #include <vcclr.h>
+#include <string>
+
+
+
 
 Handle(V3d_View) myView;
 Handle(AIS_InteractiveContext) myAISContext;
@@ -128,27 +131,35 @@ namespace CppCLRWinFormsProject {
             this->panel1->Controls->Add(this->textBox1);
             this->panel1->Location = System::Drawing::Point(12, 12);
             this->panel1->Name = L"panel1";
-            this->panel1->Size = System::Drawing::Size(1051, 613);
+            this->panel1->Size = System::Drawing::Size(1051, 539);
             this->panel1->TabIndex = 0;
             this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::panel1_Paint);
             this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
             // 
             // textBox7
             // 
-            this->textBox7->Location = System::Drawing::Point(1000, 3);
+            this->textBox7->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+            this->textBox7->Location = System::Drawing::Point(1010, 3);
             this->textBox7->Name = L"textBox7";
-            this->textBox7->Size = System::Drawing::Size(46, 22);
+            this->textBox7->Size = System::Drawing::Size(36, 22);
             this->textBox7->TabIndex = 5;
+            this->textBox7->TabStop = false;
             this->textBox7->Text = L"3";
+            this->textBox7->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
             // 
             // textBox6
             // 
+            this->textBox6->BackColor = System::Drawing::SystemColors::ControlDarkDark;
+            this->textBox6->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+            this->textBox6->ForeColor = System::Drawing::SystemColors::InactiveBorder;
             this->textBox6->Location = System::Drawing::Point(893, 3);
             this->textBox6->Name = L"textBox6";
-            this->textBox6->Size = System::Drawing::Size(100, 22);
+            this->textBox6->ReadOnly = true;
+            this->textBox6->Size = System::Drawing::Size(111, 22);
             this->textBox6->TabIndex = 4;
             this->textBox6->TabStop = false;
             this->textBox6->Text = L"Toleranzen: 1e-";
+            this->textBox6->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
             // 
             // textBox5
             // 
@@ -157,10 +168,11 @@ namespace CppCLRWinFormsProject {
             this->textBox5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.125F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox5->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox5->Location = System::Drawing::Point(953, 546);
+            this->textBox5->Location = System::Drawing::Point(953, 474);
             this->textBox5->Margin = System::Windows::Forms::Padding(2);
             this->textBox5->Multiline = true;
             this->textBox5->Name = L"textBox5";
+            this->textBox5->ReadOnly = true;
             this->textBox5->Size = System::Drawing::Size(93, 63);
             this->textBox5->TabIndex = 3;
             this->textBox5->TabStop = false;
@@ -177,6 +189,7 @@ namespace CppCLRWinFormsProject {
             this->textBox4->Margin = System::Windows::Forms::Padding(2);
             this->textBox4->Multiline = true;
             this->textBox4->Name = L"textBox4";
+            this->textBox4->ReadOnly = true;
             this->textBox4->Size = System::Drawing::Size(86, 77);
             this->textBox4->TabIndex = 2;
             this->textBox4->TabStop = false;
@@ -190,18 +203,17 @@ namespace CppCLRWinFormsProject {
             this->textBox1->ForeColor = System::Drawing::SystemColors::Window;
             this->textBox1->Location = System::Drawing::Point(3, 3);
             this->textBox1->Name = L"textBox1";
-            this->textBox1->ReadOnly = true;
             this->textBox1->Size = System::Drawing::Size(884, 22);
             this->textBox1->TabIndex = 1;
             this->textBox1->TabStop = false;
+            this->textBox1->Text = L"C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
             // 
             // button1
             // 
-            this->button1->BackColor = System::Drawing::SystemColors::ButtonHighlight;
-            this->button1->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+            this->button1->BackColor = System::Drawing::Color::Lime;
             this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
-            this->button1->ForeColor = System::Drawing::Color::LimeGreen;
+            this->button1->ForeColor = System::Drawing::Color::Ivory;
             this->button1->Location = System::Drawing::Point(1068, 15);
             this->button1->Margin = System::Windows::Forms::Padding(0);
             this->button1->Name = L"button1";
@@ -215,13 +227,13 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox2->BackColor = System::Drawing::SystemColors::InfoText;
             this->textBox2->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox2->Location = System::Drawing::Point(12, 631);
-            this->textBox2->MaxLength = 65534;
+            this->textBox2->Location = System::Drawing::Point(12, 557);
+            this->textBox2->MaxLength = 120000;
             this->textBox2->Multiline = true;
             this->textBox2->Name = L"textBox2";
             this->textBox2->ReadOnly = true;
             this->textBox2->ScrollBars = System::Windows::Forms::ScrollBars::Both;
-            this->textBox2->Size = System::Drawing::Size(1051, 167);
+            this->textBox2->Size = System::Drawing::Size(1051, 241);
             this->textBox2->TabIndex = 1;
             // 
             // textBox3
@@ -234,9 +246,11 @@ namespace CppCLRWinFormsProject {
             this->textBox3->Name = L"textBox3";
             this->textBox3->ReadOnly = true;
             this->textBox3->RightToLeft = System::Windows::Forms::RightToLeft::No;
-            this->textBox3->Size = System::Drawing::Size(275, 483);
+            this->textBox3->Size = System::Drawing::Size(275, 416);
             this->textBox3->TabIndex = 2;
             this->textBox3->TabStop = false;
+            this->textBox3->Text = L" -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n "
+                L"- \r\n -\r\n -\r\n -\r\n - \r\n -\r\n";
             this->textBox3->TextChanged += gcnew System::EventHandler(this, &Form1::textBox3_TextChanged);
             // 
             // Form1
@@ -250,10 +264,10 @@ namespace CppCLRWinFormsProject {
             this->Controls->Add(this->panel1);
             this->Name = L"Form1";
             this->Text = L"Form1";
+            this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Form1::Form1_FormClosing);
             this->Load += gcnew System::EventHandler(this, &Form1::Form1_Load);
             this->Shown += gcnew System::EventHandler(this, &Form1::Form1_Shown);
             this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::Form1_Paint);
-            this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Form1::Form1_FormClosing);
             this->panel1->ResumeLayout(false);
             this->panel1->PerformLayout();
             this->ResumeLayout(false);
@@ -322,174 +336,7 @@ namespace CppCLRWinFormsProject {
         myAISContext->Display(aisZAxis, Standard_False);
         myAISContext->UpdateCurrentViewer();
 
-        Standard_CString stepFilePath = "C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
-        int samplingAmount = 16; // am besten immer eine Zahl teilbar durch 4
-        this->textBox1->Text = gcnew System::String(stepFilePath);
-        TopoDS_Shape importedShape = ImportSTEP(stepFilePath);
-        //BRepTools::Clean(importedShape);
-        STEPInfo stepInfo = InspectShape(importedShape);
-        TopoDS_Shape centeredShape = CenterShape(importedShape);
-        GeomInfo bauteilInfo = getBasicInfo(centeredShape);
-
-        double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
-        double largestDimension = std::max({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
-        gp_Dir mainAxis = GetPrincipalInertiaAxes(centeredShape)[0];
-        gp_Dir midAxis = GetPrincipalInertiaAxes(centeredShape)[1];
-        gp_Dir minAxis = GetPrincipalInertiaAxes(centeredShape)[2];
-
-        double parallelit‰tGroﬂFl‰chen = FindLargestFacesAndCheckParallel(centeredShape);
-
-        std::vector<gp_Lin> samplingLines;
-        std::vector<gp_Lin> samplingLines2;
-        std::vector<gp_Lin> samplingLines3;
-        std::vector<gp_Lin> samplingLines4;
-        std::vector<gp_Lin> samplingLines5;
-        std::vector<gp_Lin> samplingLines6;
-        double symmetrieMid = CheckLinSymmetry(centeredShape, mainAxis, midAxis, samplingAmount*2, samplingLines2);
-        double symmetrieMin = CheckLinSymmetry(centeredShape, mainAxis, minAxis, samplingAmount*2, samplingLines3);
-        double gesamtSymmetrie = (symmetrieMin + symmetrieMid) / 2;
-        double rotSym = CheckRotSymmetry(centeredShape, mainAxis, midAxis, samplingAmount*4, samplingLines4);
-
         
-        double wandStaerke = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[0];
-        double wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
-        if (wandStaerke > smallestDimension) {
-           samplingLines.clear();
-           std::cout << "Berechnete Wandst‰rke ist grˆﬂer als kleinstest Bauteilabmaﬂ, wechsele Berechnung auf ThirdAxisOfInertia()." << std::endl;
-           wandStaerke = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[0];
-           wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
-        } else {
-            std::cout << "Berechnete Wandst‰rke besteht so!!" << std::endl;
-        }
-
-        double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount*2, samplingLines5);
-
-        double planarAnteil = checkCurvePercentage(centeredShape)[0];
-        double einfachKr¸mmungsAnteil = checkCurvePercentage(centeredShape)[1];
-        double zweifachKr¸mmungsAnteil = checkCurvePercentage(centeredShape)[2];
-        double andererAnteil = checkCurvePercentage(centeredShape)[3];
-
-
-        std::vector<gp_Pnt> visitedPoints;
-        double innenStruktur = checkHohlraum(centeredShape, samplingAmount*2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, 0);
-
-
-
-
-
-
-
-        //Ergebnisse Tabelle
-        System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder();
-        sb->AppendLine(" Abmaﬂe: " + bauteilInfo.xDimension.ToString("F1") + "x" + bauteilInfo.yDimension.ToString("F1") + "x" + bauteilInfo.zDimension.ToString("F1") + "mm");
-        sb->AppendLine(" Oberfl‰che: " + bauteilInfo.surfaceArea.ToString("F2") + " mm≤");
-        sb->AppendLine(" Volumen: " + bauteilInfo.volume.ToString("F2") + " mm≥");
-        sb->AppendLine(" Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm≥  (" + (bauteilInfo.volumeRatio*100).ToString("F2") + "%)");
-        sb->AppendLine(" ");
-        sb->AppendLine("----------------------------------------------------------------");
-        sb->AppendLine(" ");
-        sb->AppendLine(" Parallelit‰t (Hauptfl‰chen): " + (parallelit‰tGroﬂFl‰chen).ToString("F1"));
-        sb->AppendLine(" x-Symmetrie (2.HTA): " + (symmetrieMid*100).ToString("F2") + "%");
-        sb->AppendLine(" y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
-        sb->AppendLine(" ÿ Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
-        sb->AppendLine(" Rotationssymmetrie: " + (rotSym*100).ToString("F2") + "%");
-        sb->AppendLine(" Wandst‰rke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent*100).ToString("F2") + "%)");
-        sb->AppendLine(" ");
-        sb->AppendLine("----------------------------------------------------------------");
-        sb->AppendLine(" ");
-        sb->AppendLine(" Profilerkennung: " + (profileScore*100).ToString("F2") + "%");
-        sb->AppendLine(" Planare Fl‰chen: " + (planarAnteil*100).ToString("F2") + "%");
-        sb->AppendLine(" 1x-Gekr¸mmte Fl‰chen: " + (einfachKr¸mmungsAnteil*100).ToString("F2") + "%");
-        sb->AppendLine(" 2x-Gekr¸mmte Fl‰chen: " + (zweifachKr¸mmungsAnteil*100).ToString("F2") + "%");
-        sb->AppendLine(" Andere Fl‰chenanteile: " + (andererAnteil*100).ToString("F2") + "%");
-        sb->AppendLine(" ");
-        sb->AppendLine("----------------------------------------------------------------");
-        sb->AppendLine(" ");
-        //sb->AppendLine("Biegungen: " + (profileScore*100).ToString("F2") + "%");
-        sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur*100).ToString("F2") + "%");
-        textBox3->Text = sb->ToString();
-
-
-
-
-        
-        //Beispiel Visualisierungen
-        Bnd_Box boundingBox;
-        BRepBndLib::Add(centeredShape, boundingBox);
-
-        Standard_Real xmin, ymin, zmin, xmax, ymax, zmax;
-        boundingBox.Get(xmin, ymin, zmin, xmax, ymax, zmax);
-
-        double dx = xmax - xmin;
-        double dy = ymax - ymin;
-        double dz = zmax - zmin;
-        double boundingBoxLength = sqrt(dx * dx + dy * dy + dz * dz);
-
-        // Use half of the bounding box length for the lines
-        double length = boundingBoxLength / 2.0;
-
-        for (const auto& line : samplingLines2) {
-            // Define the start and end points of the line segment
-            gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
-            gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
-
-            // Create an edge from the line segment
-            TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(P1, P2);
-
-            // Create an AIS_Shape for visualization
-            Handle(AIS_Shape) aisEdge = new AIS_Shape(edge);
-            aisEdge->SetColor(Quantity_NOC_WHITE); // Set the color of the line
-            aisEdge->SetWidth(1.0); // Optional: set the width of the line
-
-            // Display the line in the viewer
-            myAISContext->Display(aisEdge, Standard_True);
-        }
-
-        // Redisplay the viewer
-        myAISContext->UpdateCurrentViewer();
-
-
-
-
-
-
-
-        //Andere display text boxes infos
-        System::Text::StringBuilder^ sa = gcnew System::Text::StringBuilder();
-        sa->AppendLine(" - Solids: " + stepInfo.numSolids.ToString("D3"));
-        sa->AppendLine(" - Shells: " + stepInfo.numShells.ToString("D3"));
-        sa->AppendLine(" - Fl‰chen: " + stepInfo.numFaces.ToString("D3"));
-        sa->AppendLine(" - Kanten: " + stepInfo.numEdges.ToString("D3"));
-        sa->AppendLine(" - Ecken: " + stepInfo.numVertices.ToString("D3"));
-        textBox4->Text = sa->ToString();
-
-        System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
-        sc->AppendLine(" SP (" + bauteilInfo.center.X().ToString("F1") + "/" + bauteilInfo.center.Y().ToString("F1") + "/" + bauteilInfo.center.Z().ToString("F1") + ")");
-        sc->AppendLine(" HTA1 (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
-        sc->AppendLine(" HTA2 (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
-        sc->AppendLine(" HTA3 (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
-        textBox5->Text = sc->ToString();
-
-
-
-
-
-
-        // ‹berpr¸fen, ob das Shape g¸ltig ist
-        if (!importedShape.IsNull()) {
-            // Erstellen eines AIS_Shape aus dem importierten Shape
-            Handle(AIS_Shape) aisShape = new AIS_Shape(centeredShape);
-
-            // Anzeigen des Shapes im Viewer
-            myAISContext->Display(aisShape, Standard_True);
-
-            // Die Ansicht anpassen, um das gesamte Shape anzuzeigen
-            myView->FitAll();
-            myView->Redraw();
-        }
-        else {
-            std::cout << "Das importierte Shape ist ung¸ltig." << std::endl;
-        }
 
     }
     private: System::Void panel1_Resize(System::Object^ sender, System::EventArgs^ e) {
@@ -522,7 +369,244 @@ namespace CppCLRWinFormsProject {
 
     private: System::Void textBox4_TextChanged(System::Object^ sender, System::EventArgs^ e) {
     }
+           private: void ResetForNewAnalysis() {
+               // Clear old shapes
+               myAISContext->EraseAll(Standard_True);
+               myAISContext->UpdateCurrentViewer();
+               myView->FitAll();
+               myView->Redraw();
+               myView->MustBeResized();
+
+               // Redraw coordinate system
+               gp_Pnt origin(0, 0, 0);
+               TopoDS_Vertex vertex1 = BRepBuilderAPI_MakeVertex(origin);
+               Handle(AIS_Shape) originPoint = new AIS_Shape(vertex1);
+               myAISContext->Display(originPoint, true);
+               Standard_Real axisLength = 20;
+               gp_Pnt xAxisEnd(axisLength, 0, 0);
+               TopoDS_Edge xAxisEdge = BRepBuilderAPI_MakeEdge(origin, xAxisEnd);
+               Handle(AIS_Shape) aisXAxis = new AIS_Shape(xAxisEdge);
+               myAISContext->SetColor(aisXAxis, Quantity_NOC_RED, Standard_False);
+               myAISContext->Display(aisXAxis, Standard_False);
+               gp_Pnt yAxisEnd(0, axisLength, 0);
+               TopoDS_Edge yAxisEdge = BRepBuilderAPI_MakeEdge(origin, yAxisEnd);
+               Handle(AIS_Shape) aisYAxis = new AIS_Shape(yAxisEdge);
+               myAISContext->SetColor(aisYAxis, Quantity_NOC_GREEN, Standard_False);
+               myAISContext->Display(aisYAxis, Standard_False);
+               gp_Pnt zAxisEnd(0, 0, axisLength);
+               TopoDS_Edge zAxisEdge = BRepBuilderAPI_MakeEdge(origin, zAxisEnd);
+               Handle(AIS_Shape) aisZAxis = new AIS_Shape(zAxisEdge);
+               myAISContext->SetColor(aisZAxis, Quantity_NOC_BLUE1, Standard_False);
+               myAISContext->Display(aisZAxis, Standard_False);
+               myAISContext->UpdateCurrentViewer();
+               myAISContext->UpdateCurrentViewer();
+
+               // Clear output TextBox
+               textBox2->Clear();
+           }
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+
+    ResetForNewAnalysis();
+
+    // Read the STEP file path from textBox1
+    System::String^ managedFilePath = textBox1->Text;
+    pin_ptr<const wchar_t> wch = PtrToStringChars(managedFilePath);
+    int len = managedFilePath->Length;
+    std::string filePath;
+    filePath.reserve(len);
+    for (int i = 0; i < len; i++) {
+        filePath.push_back(static_cast<char>(wch[i]));
+    }
+    Standard_CString stepFilePath = filePath.c_str();
+
+    if (filePath.empty()) {
+        MessageBox::Show("No STEP file path provided!");
+        return;
+    }
+
+    int tolerance;
+    if (System::Int32::TryParse(textBox7->Text, tolerance)) {
+        std::cout << "Tolerance inputted is: " << tolerance << std::endl;
+    }
+    else {
+        MessageBox::Show("INVALID TOLERANCE ENTERED");
+        return;
+    }
+
+    //Standard_CString stepFilePath = "C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
+    int samplingAmount = 16; // am besten immer eine Zahl teilbar durch 4
+    //this->textBox1->Text = gcnew System::String(stepFilePath);
+    TopoDS_Shape importedShape = ImportSTEP(stepFilePath);
+    if (importedShape.IsNull()) {
+        std::cout << "Failed to import the STEP file!" << std::endl;
+        return;
+    }
+    std::cout << "Analyzing STEP file: " << stepFilePath << std::endl;
+    //BRepTools::Clean(importedShape);
+    STEPInfo stepInfo = InspectShape(importedShape);
+    TopoDS_Shape centeredShape = CenterShape(importedShape);
+    GeomInfo bauteilInfo = getBasicInfo(centeredShape);
+
+    double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
+    double largestDimension = std::max({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
+    gp_Dir mainAxis = GetPrincipalInertiaAxes(centeredShape)[0];
+    gp_Dir midAxis = GetPrincipalInertiaAxes(centeredShape)[1];
+    gp_Dir minAxis = GetPrincipalInertiaAxes(centeredShape)[2];
+
+    double parallelit‰tGroﬂFl‰chen = FindLargestFacesAndCheckParallel(centeredShape);
+
+    std::vector<gp_Lin> samplingLines;
+    std::vector<gp_Lin> samplingLines2;
+    std::vector<gp_Lin> samplingLines3;
+    std::vector<gp_Lin> samplingLines4;
+    std::vector<gp_Lin> samplingLines5;
+    std::vector<gp_Lin> samplingLines6;
+    double symmetrieMid = CheckLinSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 2, samplingLines2);
+    double symmetrieMin = CheckLinSymmetry(centeredShape, mainAxis, minAxis, samplingAmount * 2, samplingLines3);
+    double gesamtSymmetrie = (symmetrieMin + symmetrieMid) / 2;
+    double rotSym = CheckRotSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 4, samplingLines4);
+
+
+    double wandStaerke = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[0];
+    double wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
+    if (wandStaerke > smallestDimension) {
+        samplingLines.clear();
+        std::cout << "Berechnete Wandst‰rke ist grˆﬂer als kleinstest Bauteilabmaﬂ, wechsele Berechnung auf ThirdAxisOfInertia()." << std::endl;
+        wandStaerke = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[0];
+        wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
+    }
+    else {
+        std::cout << "Berechnete Wandst‰rke besteht so!!" << std::endl;
+    }
+
+    double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
+
+    double planarAnteil = checkCurvePercentage(centeredShape)[0];
+    double einfachKr¸mmungsAnteil = checkCurvePercentage(centeredShape)[1];
+    double zweifachKr¸mmungsAnteil = checkCurvePercentage(centeredShape)[2];
+    double andererAnteil = checkCurvePercentage(centeredShape)[3];
+
+
+    std::vector<gp_Pnt> visitedPoints;
+    double innenStruktur = checkHohlraum(centeredShape, samplingAmount * 2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, 0);
+
+
+
+
+
+
+
+    //Ergebnisse Tabelle
+    System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder();
+    sb->AppendLine(" Abmaﬂe: " + bauteilInfo.xDimension.ToString("F1") + "x" + bauteilInfo.yDimension.ToString("F1") + "x" + bauteilInfo.zDimension.ToString("F1") + "mm");
+    sb->AppendLine(" Oberfl‰che: " + bauteilInfo.surfaceArea.ToString("F2") + " mm≤");
+    sb->AppendLine(" Volumen: " + bauteilInfo.volume.ToString("F2") + " mm≥");
+    sb->AppendLine(" Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm≥  (" + (bauteilInfo.volumeRatio * 100).ToString("F2") + "%)");
+    sb->AppendLine(" ");
+    sb->AppendLine("----------------------------------------------------------------");
+    sb->AppendLine(" ");
+    sb->AppendLine(" Parallelit‰t (Hauptfl‰chen): " + (parallelit‰tGroﬂFl‰chen).ToString("F1"));
+    sb->AppendLine(" x-Symmetrie (2.HTA): " + (symmetrieMid * 100).ToString("F2") + "%");
+    sb->AppendLine(" y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
+    sb->AppendLine(" ÿ Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
+    sb->AppendLine(" Rotationssymmetrie: " + (rotSym * 100).ToString("F2") + "%");
+    sb->AppendLine(" Wandst‰rke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent * 100).ToString("F2") + "%)");
+    sb->AppendLine(" ");
+    sb->AppendLine("----------------------------------------------------------------");
+    sb->AppendLine(" ");
+    sb->AppendLine(" Profilerkennung: " + (profileScore * 100).ToString("F2") + "%");
+    sb->AppendLine(" Planare Fl‰chen: " + (planarAnteil * 100).ToString("F2") + "%");
+    sb->AppendLine(" 1x-Gekr¸mmte Fl‰chen: " + (einfachKr¸mmungsAnteil * 100).ToString("F2") + "%");
+    sb->AppendLine(" 2x-Gekr¸mmte Fl‰chen: " + (zweifachKr¸mmungsAnteil * 100).ToString("F2") + "%");
+    sb->AppendLine(" Andere Fl‰chenanteile: " + (andererAnteil * 100).ToString("F2") + "%");
+    sb->AppendLine(" ");
+    sb->AppendLine("----------------------------------------------------------------");
+    sb->AppendLine(" ");
+    //sb->AppendLine("Biegungen: " + (profileScore*100).ToString("F2") + "%");
+    sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
+    textBox3->Text = sb->ToString();
+
+
+
+
+
+    //Beispiel Visualisierungen
+    Bnd_Box boundingBox;
+    BRepBndLib::Add(centeredShape, boundingBox);
+
+    Standard_Real xmin, ymin, zmin, xmax, ymax, zmax;
+    boundingBox.Get(xmin, ymin, zmin, xmax, ymax, zmax);
+
+    double dx = xmax - xmin;
+    double dy = ymax - ymin;
+    double dz = zmax - zmin;
+    double boundingBoxLength = sqrt(dx * dx + dy * dy + dz * dz);
+
+    // Use half of the bounding box length for the lines
+    double length = boundingBoxLength / 2.0;
+
+    for (const auto& line : samplingLines2) {
+        // Define the start and end points of the line segment
+        gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
+        gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
+
+        // Create an edge from the line segment
+        TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(P1, P2);
+
+        // Create an AIS_Shape for visualization
+        Handle(AIS_Shape) aisEdge = new AIS_Shape(edge);
+        aisEdge->SetColor(Quantity_NOC_WHITE); // Set the color of the line
+        aisEdge->SetWidth(1.0); // Optional: set the width of the line
+
+        // Display the line in the viewer
+        myAISContext->Display(aisEdge, Standard_True);
+    }
+
+    // Redisplay the viewer
+    myAISContext->UpdateCurrentViewer();
+
+
+
+
+
+
+
+    //Andere display text boxes infos
+    System::Text::StringBuilder^ sa = gcnew System::Text::StringBuilder();
+    sa->AppendLine(" - Solids: " + stepInfo.numSolids.ToString("D3"));
+    sa->AppendLine(" - Shells: " + stepInfo.numShells.ToString("D3"));
+    sa->AppendLine(" - Fl‰chen: " + stepInfo.numFaces.ToString("D3"));
+    sa->AppendLine(" - Kanten: " + stepInfo.numEdges.ToString("D3"));
+    sa->AppendLine(" - Ecken: " + stepInfo.numVertices.ToString("D3"));
+    textBox4->Text = sa->ToString();
+
+    System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
+    sc->AppendLine(" SP (" + bauteilInfo.center.X().ToString("F1") + "/" + bauteilInfo.center.Y().ToString("F1") + "/" + bauteilInfo.center.Z().ToString("F1") + ")");
+    sc->AppendLine(" HTA1 (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
+    sc->AppendLine(" HTA2 (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
+    sc->AppendLine(" HTA3 (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
+    textBox5->Text = sc->ToString();
+
+
+
+
+
+
+    // ‹berpr¸fen, ob das Shape g¸ltig ist
+    if (!importedShape.IsNull()) {
+        // Erstellen eines AIS_Shape aus dem importierten Shape
+        Handle(AIS_Shape) aisShape = new AIS_Shape(centeredShape);
+
+        // Anzeigen des Shapes im Viewer
+        myAISContext->Display(aisShape, Standard_True);
+
+        // Die Ansicht anpassen, um das gesamte Shape anzuzeigen
+        myView->FitAll();
+        myView->Redraw();
+    }
+    else {
+        std::cout << "Das importierte Shape ist ung¸ltig." << std::endl;
+    }
 }
 private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }

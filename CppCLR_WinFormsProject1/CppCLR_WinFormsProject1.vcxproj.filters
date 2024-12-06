@@ -47,6 +47,9 @@
     <ClInclude Include="TextBoxStreamBuf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="loadViewElements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CppCLR_WinFormsProject.cpp">
