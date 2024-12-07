@@ -1122,7 +1122,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
         }
 
         // Berechne die Schnittpunkte und zähle die Linien, die das Bauteil schneiden
-        int linesWithIntersections = 0;
+        double linesWithIntersections = 0;
 
         for (size_t i = 0; i < samplingLines.size(); ++i) {
             const gp_Lin& line = samplingLines[i];
@@ -1132,7 +1132,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
 
             // Wenn es Schnittpunkte gibt, erhöhe den Zähler
             if (!intersectionPoints.empty()) {
-                linesWithIntersections++;
+                linesWithIntersections += 1.5;
             }
             std::cout << "Sampling-Linie " << i + 1 << ": ";
             if (!intersectionPoints.empty()) {
@@ -1144,7 +1144,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
         }
 
         // Berechne den Prozentsatz
-        double profileConsistency = 1 - (static_cast<double>(linesWithIntersections) / samplingLines.size());
+        double profileConsistency = 1 - ((linesWithIntersections) / samplingLines.size());
 
         return profileConsistency;
 

@@ -127,7 +127,7 @@ double calcRohrLaserTeil (double D1, double D2, int tol, double sym, double rotS
 	double allgemeineSym = 0.0;
 
 	// KO Kriterien
-	if (dRatio < 0.9 || durchmesser > 400 || volRatio > 0.9 || tol > 2 || innen > 0.98 || tWand > durchmesser || tWand < 0.2) {
+	if (dRatio < 0.9 || durchmesser > 400 || volRatio > 0.9 || tol > 2 || innen > 0.98 || tWand > durchmesser || tWand < 0.2 || profil < 0.2) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
     }
