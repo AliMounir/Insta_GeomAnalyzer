@@ -235,7 +235,7 @@ namespace CppCLRWinFormsProject {
             this->textBox2->BackColor = System::Drawing::SystemColors::InfoText;
             this->textBox2->ForeColor = System::Drawing::SystemColors::Window;
             this->textBox2->Location = System::Drawing::Point(12, 557);
-            this->textBox2->MaxLength = 120000;
+            this->textBox2->MaxLength = 150000;
             this->textBox2->Multiline = true;
             this->textBox2->Name = L"textBox2";
             this->textBox2->ReadOnly = true;
@@ -553,6 +553,9 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 
     std::vector<gp_Pnt> visitedPoints;
     double innenStruktur = checkHohlraum(centeredShape, samplingAmount * 2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, 0);
+    
+
+    double biegeScore = 0.0;
 
 
 
@@ -561,6 +564,11 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
     double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSym, profileScore, bauteilInfo.volumeRatio, innenStruktur, zweifachKrümmungsAnteil, einfachKrümmungsAnteil, andererAnteil, planarAnteil);
     double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSym, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
+    double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
+    double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
+    double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
+    //System::String^ prefVerfahren = "Präferrenz Verfahren";
+    std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.72);
 
 
 
@@ -591,7 +599,7 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     sb->AppendLine(" ");
     sb->AppendLine("----------------------------------------------------------------");
     sb->AppendLine(" ");
-    sb->AppendLine("Biegungen: XXXX");
+    sb->AppendLine("Biegungen: " + (biegeScore * 100).ToString("F2") + "%");
     sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
     textBox3->Text = sb->ToString();
 
@@ -600,12 +608,17 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     System::Text::StringBuilder^ sd = gcnew System::Text::StringBuilder();
     sd->AppendLine(" CNC-Fräsen: " + (fraesen * 100).ToString("F2") + "%");
     sd->AppendLine(" CNC-Drehen: " + (drehen * 100).ToString("F2") + "%");
-    sd->AppendLine(" CNC-Blech: " + (rohrlaser * 100).ToString("F2") + "%");
-    sd->AppendLine(" Biegeblech: " + (rohrlaser * 100).ToString("F2") + "%");
+    sd->AppendLine(" CNC-Blech: " + (blech2d * 100).ToString("F2") + "%");
+    sd->AppendLine(" Biegeblech: " + (blech3d * 100).ToString("F2") + "%");
     sd->AppendLine(" Rohrlaser: " + (rohrlaser * 100).ToString("F2") + "%");
-    sd->AppendLine(" Additive: " + (rohrlaser * 100).ToString("F2") + "%");
+    sd->AppendLine(" Additive: " + (additivesV * 100).ToString("F2") + "%");
     textBox8->Text = sd->ToString();
 
+
+    System::String^ mPrefVerf = gcnew System::String(prefVerfahren.c_str());
+    System::Text::StringBuilder^ sP = gcnew System::Text::StringBuilder();
+    sP->AppendLine(mPrefVerf);
+    textBox9->Text = sP->ToString();
 
 
 
