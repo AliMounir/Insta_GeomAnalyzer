@@ -80,7 +80,8 @@ namespace CppCLRWinFormsProject {
     private:
         TextBoxStreamBuf* textBoxStreamBuf;
         std::streambuf* oldBuf;
-        System::ComponentModel::Container^ components;
+    private: System::Windows::Forms::Button^ button2;
+           System::ComponentModel::Container^ components;
 
 
 
@@ -114,6 +115,7 @@ namespace CppCLRWinFormsProject {
 #pragma region Windows Form Designer generated code
         void InitializeComponent(void)
         {
+            System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
             this->panel1 = (gcnew System::Windows::Forms::Panel());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
@@ -126,6 +128,7 @@ namespace CppCLRWinFormsProject {
             this->textBox8 = (gcnew System::Windows::Forms::TextBox());
             this->textBox9 = (gcnew System::Windows::Forms::TextBox());
             this->textBox10 = (gcnew System::Windows::Forms::TextBox());
+            this->button2 = (gcnew System::Windows::Forms::Button());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
@@ -308,11 +311,22 @@ namespace CppCLRWinFormsProject {
             this->textBox10->Text = L"am besten für das Bauteil geeignet:";
             this->textBox10->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
             // 
+            // button2
+            // 
+            this->button2->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"button2.Image")));
+            this->button2->Location = System::Drawing::Point(1309, 764);
+            this->button2->Name = L"button2";
+            this->button2->Size = System::Drawing::Size(34, 34);
+            this->button2->TabIndex = 8;
+            this->button2->UseVisualStyleBackColor = true;
+            this->button2->Click += gcnew System::EventHandler(this, &Form1::button2_Click);
+            // 
             // Form1
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
+            this->Controls->Add(this->button2);
             this->Controls->Add(this->textBox10);
             this->Controls->Add(this->textBox9);
             this->Controls->Add(this->textBox8);
@@ -650,7 +664,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines6) {
+        for (const auto& line : samplingLines2) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
@@ -756,6 +770,8 @@ private: System::Void textBox3_TextChanged(System::Object^ sender, System::Event
 }
 
 private: System::Void textBox9_TextChanged(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
 }
 };
 }
