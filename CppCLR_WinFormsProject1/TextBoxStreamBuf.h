@@ -3,19 +3,15 @@
 #include <streambuf>
 #include <string>
 #include <vcclr.h>
+#include <mutex>
 
-// Forward Declaration deiner Form-Klasse oder inkludieren der entsprechenden Header
-// assuming your form is in namespace CppCLRWinFormsProject
-namespace CppCLRWinFormsProject {
-    ref class Form1;
-}
+using namespace System::Windows::Forms;
 
 class TextBoxStreamBuf : public std::streambuf {
 public:
-    TextBoxStreamBuf(CppCLRWinFormsProject::Form1^ form, System::Windows::Forms::TextBox^ textBox)
-        : m_form(form), m_textBox(textBox) {
-        // Set an initial put area
-        setp(buffer, buffer + sizeof(buffer));
+    TextBoxStreamBuf(System::Action<System::String^>^ appendTextAction)
+        : m_appendTextAction(appendTextAction), m_active(true) {
+        setp(buffer, buffer + sizeof(buffer) - 1); // Reserve space for null terminator
     }
 
 protected:
@@ -28,49 +24,49 @@ protected:
     }
 
     virtual std::streamsize xsputn(const char* s, std::streamsize n) override {
-        std::streamsize space = (std::streamsize)(epptr() - pptr());
-        if (n < space) {
-            memcpy(pptr(), s, n);
-            pbump((int)n);
+        std::streamsize space = epptr() - pptr();
+        if (n <= space) {
+            std::memcpy(pptr(), s, n);
+            pbump(static_cast<int>(n));
             return n;
         }
 
-        // else flush
-        memcpy(pptr(), s, space);
-        pbump((int)space);
-        if (flushBuffer() == traits_type::eof()) {
-            return (std::streamsize)0;
+        // Flush the current buffer
+        std::streamsize flushed = flushBuffer();
+        if (flushed == traits_type::eof()) {
+            return 0;
         }
 
-        std::streamsize left = n - space;
-        if (left < (std::streamsize)sizeof(buffer)) {
-            memcpy(buffer, s + space, left);
-            setp(buffer, buffer + sizeof(buffer));
-            pbump((int)left);
+        if (n <= sizeof(buffer)) {
+            std::memcpy(buffer, s, n);
+            setp(buffer, buffer + sizeof(buffer) - 1);
+            pbump(static_cast<int>(n));
             return n;
         }
 
-        // If it's still too large, write directly without buffering.
-        writeToTextBox(std::string(s + space, s + space + left));
+        // If the data is larger than the buffer, write directly
+        writeToTextBox(std::string(s, s + n));
         return n;
     }
 
 private:
     int flushBuffer() {
-        int num = (int)(pptr() - pbase());
+        int num = static_cast<int>(pptr() - pbase());
         if (num > 0) {
             std::string output(pbase(), pbase() + num);
             writeToTextBox(output);
-            setp(buffer, buffer + sizeof(buffer));
+            setp(buffer, buffer + sizeof(buffer) - 1);
         }
         return num;
     }
 
     void writeToTextBox(const std::string& output) {
-        if (!m_textBox || m_textBox->IsDisposed) {
-            return; // Avoid writing to a disposed TextBox
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (!m_active) {
+            return;
         }
 
+        // Konvertieren von '\n' zu '\r\n' für Windows
         std::string processedOutput = output;
         size_t pos = 0;
         while ((pos = processedOutput.find('\n', pos)) != std::string::npos) {
@@ -78,23 +74,19 @@ private:
             pos += 2;
         }
 
+        // Konvertieren von std::string zu System::String^
         System::String^ text = gcnew System::String(processedOutput.c_str());
 
-        // Check TextBox length and truncate if necessary
-        if (m_textBox->Text->Length + text->Length > 65534) { // Example max size
-            m_textBox->Text = m_textBox->Text->Substring(text->Length);
-        }
+        // Aufrufen des Delegaten
+        m_appendTextAction->Invoke(text);
 
-        m_textBox->AppendText(text);
+        // Zusätzliche Testausgabe
+        std::cout << "TextBoxStreamBuf hat Text verarbeitet.\n";
+        std::cout.flush();
     }
 
-    // If you need a safe append via Invoke (if called from another thread):
-    // void AppendTextSafe(System::String^ text) {
-    //     m_textBox->AppendText(text);
-    // }
-
-    gcroot<CppCLRWinFormsProject::Form1^> m_form;
-    gcroot<System::Windows::Forms::TextBox^> m_textBox;
-
+    gcroot<System::Action<System::String^>^> m_appendTextAction;
+    std::mutex m_mutex;
+    bool m_active;
     char buffer[1024];
 };

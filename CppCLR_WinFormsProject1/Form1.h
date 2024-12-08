@@ -61,44 +61,42 @@ namespace CppCLRWinFormsProject {
         {
             InitializeComponent();
 
-            textBoxStreamBuf = new TextBoxStreamBuf(this, textBox2);
+            textBoxStreamBuf = new TextBoxStreamBuf(gcnew System::Action<System::String^>(this, &Form1::AppendTextToTextBox));
             oldBuf = std::cout.rdbuf(textBoxStreamBuf);
+            std::cout << "Umleitung von std::cout erfolgreich.\n";
+            std::cout.flush();
         }
     protected:
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
         ~Form1()
         {
-            /*std::cout.flush();
-            if (textBoxStreamBuf) {
-                std::cout.rdbuf(oldBuf);
-                delete textBoxStreamBuf;
-                textBoxStreamBuf = nullptr;
-            }
-
             if (components)
             {
                 delete components;
-            }*/
+            }
         }
     
     private:
         TextBoxStreamBuf* textBoxStreamBuf;
         std::streambuf* oldBuf;
-    protected:
-
-    private:
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         System::ComponentModel::Container^ components;
 
-    private:
-        System::Windows::Forms::Panel^ panel1;
-        System::Windows::Forms::TextBox^ textBox1;
 
 
+    public:
+        void AppendTextToTextBox(System::String^ text) {
+
+            if (textBox2->InvokeRequired) {
+                textBox2->BeginInvoke(gcnew Action<System::String^>(this, &Form1::AppendTextToTextBox), text);
+            }
+            else {
+                if (!textBox2->IsDisposed) {
+                    textBox2->AppendText(text);
+                }
+            }
+        }
+
+    private: System::Windows::Forms::Panel^ panel1;
+    private: System::Windows::Forms::TextBox^ textBox1;
     private: System::Windows::Forms::TextBox^ textBox4;
     private: System::Windows::Forms::TextBox^ textBox5;
     private: System::Windows::Forms::TextBox^ textBox3;
@@ -108,7 +106,7 @@ namespace CppCLRWinFormsProject {
     private: System::Windows::Forms::TextBox^ textBox8;
     private: System::Windows::Forms::TextBox^ textBox9;
     private: System::Windows::Forms::TextBox^ textBox10;
-           System::Windows::Forms::TextBox^ textBox2;
+    private: System::Windows::Forms::TextBox^ textBox2;
 
 
 #pragma region Windows Form Designer generated code
@@ -393,6 +391,9 @@ namespace CppCLRWinFormsProject {
         Handle(AIS_Shape) aisZAxis = new AIS_Shape(zAxisEdge);
         myAISContext->SetColor(aisZAxis, Quantity_NOC_BLUE1, Standard_False);
         myAISContext->Display(aisZAxis, Standard_False);
+        myView->FitAll();
+        myView->Redraw();
+        myView->MustBeResized();
         myAISContext->UpdateCurrentViewer();
 
         
@@ -429,6 +430,15 @@ namespace CppCLRWinFormsProject {
     private: System::Void textBox4_TextChanged(System::Object^ sender, System::EventArgs^ e) {
     }
            private: void ResetForNewAnalysis() {
+
+               std::cout.flush();
+               if (textBoxStreamBuf) {
+                   std::cout.rdbuf(oldBuf);
+                   delete textBoxStreamBuf;
+                   textBoxStreamBuf = nullptr;
+               }
+               textBox2->Clear();
+
                // Clear old shapes
                std::cout << "Analysis started.. " << std::endl;
                myAISContext->EraseAll(Standard_True);
@@ -468,6 +478,9 @@ namespace CppCLRWinFormsProject {
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 
     ResetForNewAnalysis();
+
+    textBoxStreamBuf = new TextBoxStreamBuf(gcnew System::Action<System::String^>(this, &Form1::AppendTextToTextBox));
+    oldBuf = std::cout.rdbuf(textBoxStreamBuf);
 
     // Read the STEP file path from textBox1
     System::String^ managedFilePath = textBox1->Text;
@@ -700,10 +713,23 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     else {
         std::cout << "Das importierte Shape ist ungültig." << std::endl;
     }
+
 }
 private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }
-private: System::Void Form1_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
+
+private: void PerformAnalysis() {
+    // Ihre gesamte Analyse-Logik hier
+    // Beispielausgabe:
+    std::cout << "Start der Analyse..." << std::endl;
+
+    // ... Ihr vorhandener Analyse-Code ...
+
+    // Beispielabschluss
+    std::cout << "Analyse abgeschlossen." << std::endl;
+}
+
+    System::Void Form1_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
     std::cout.flush();
 
     if (textBoxStreamBuf) {
@@ -712,9 +738,7 @@ private: System::Void Form1_FormClosing(System::Object^ sender, System::Windows:
         textBoxStreamBuf = nullptr;
     }
 
-    if (components) {
-        delete components;
-    }
+    std::cout.flush();
 }
        protected:
            virtual void OnFormClosing(System::Windows::Forms::FormClosingEventArgs^ e) override {
