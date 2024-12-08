@@ -53,6 +53,9 @@
     <ClInclude Include="verfahrensBerechnung.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SettingsForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CppCLR_WinFormsProject.cpp">
@@ -82,9 +85,15 @@
     <ClCompile Include="verfahrensBerechnung.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SettingsForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\gear.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

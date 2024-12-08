@@ -150,6 +150,9 @@ TKFillet.lib
     <ClInclude Include="loadViewElements.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SettingsForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="stepImporters.h" />
     <ClInclude Include="TextBoxStreamBuf.h" />
     <ClInclude Include="verfahrensBerechnung.h" />
@@ -167,10 +170,12 @@ TKFillet.lib
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SettingsForm.cpp" />
     <ClCompile Include="stepImporters.cpp" />
     <ClCompile Include="verfahrensBerechnung.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\gear.png" />
     <Image Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +189,10 @@ TKFillet.lib
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.h</DependentUpon>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsForm.resx">
+      <DependentUpon>SettingsForm.h</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

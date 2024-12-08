@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pch.h"
+#include "SettingsForm.h"
 #include "stepImporters.h"
 #include "calcBasicInfo.h"
 #include "geomAnalysen.h"
@@ -115,7 +116,6 @@ namespace CppCLRWinFormsProject {
 #pragma region Windows Form Designer generated code
         void InitializeComponent(void)
         {
-            System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
             this->panel1 = (gcnew System::Windows::Forms::Panel());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
@@ -313,7 +313,6 @@ namespace CppCLRWinFormsProject {
             // 
             // button2
             // 
-            this->button2->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"button2.Image")));
             this->button2->Location = System::Drawing::Point(1309, 764);
             this->button2->Name = L"button2";
             this->button2->Size = System::Drawing::Size(34, 34);
@@ -772,6 +771,13 @@ private: System::Void textBox3_TextChanged(System::Object^ sender, System::Event
 private: System::Void textBox9_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }
 private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
+
+    //settingsForm->nSampl = this->samplingAmount;
+
+    CppCLR_WinFormsProject1::SettingsForm^ settingsForm = gcnew CppCLR_WinFormsProject1::SettingsForm();
+    settingsForm->ShowDialog();
+
+    delete settingsForm;
 }
 };
 }
