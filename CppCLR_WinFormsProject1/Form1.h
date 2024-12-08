@@ -114,6 +114,7 @@ namespace CppCLRWinFormsProject {
 #pragma region Windows Form Designer generated code
         void InitializeComponent(void)
         {
+            System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
             this->panel1 = (gcnew System::Windows::Forms::Panel());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
@@ -256,8 +257,7 @@ namespace CppCLRWinFormsProject {
             this->textBox3->Size = System::Drawing::Size(275, 432);
             this->textBox3->TabIndex = 2;
             this->textBox3->TabStop = false;
-            this->textBox3->Text = L" -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n - \r\n -\r\n -\r\n -\r\n "
-                L"- \r\n -\r\n -\r\n -\r\n - \r\n -\r\n";
+            this->textBox3->Text = resources->GetString(L"textBox3.Text");
             this->textBox3->TextChanged += gcnew System::EventHandler(this, &Form1::textBox3_TextChanged);
             // 
             // textBox8
@@ -280,12 +280,12 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox9->BackColor = System::Drawing::SystemColors::MenuHighlight;
             this->textBox9->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
-            this->textBox9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 16.2F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+            this->textBox9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 15, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox9->ForeColor = System::Drawing::SystemColors::Window;
             this->textBox9->Location = System::Drawing::Point(1069, 709);
             this->textBox9->Name = L"textBox9";
-            this->textBox9->Size = System::Drawing::Size(274, 38);
+            this->textBox9->Size = System::Drawing::Size(274, 36);
             this->textBox9->TabIndex = 6;
             this->textBox9->TabStop = false;
             this->textBox9->Text = L"Ergebnis Verfahren";
@@ -612,7 +612,7 @@ private: void PerformAnalysis() {
         sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" ");
-        sb->AppendLine("Biegungen: " + (biegeScore * 100).ToString("F2") + "%");
+        sb->AppendLine(" Biegungen: " + (biegeScore * 100).ToString("F2") + "%");
         sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
         textBox3->Text = sb->ToString();
         
