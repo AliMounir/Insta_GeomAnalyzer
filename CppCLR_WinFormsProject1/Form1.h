@@ -114,7 +114,6 @@ namespace CppCLRWinFormsProject {
 #pragma region Windows Form Designer generated code
         void InitializeComponent(void)
         {
-            System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
             this->panel1 = (gcnew System::Windows::Forms::Panel());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
@@ -257,7 +256,7 @@ namespace CppCLRWinFormsProject {
             this->textBox3->Size = System::Drawing::Size(275, 432);
             this->textBox3->TabIndex = 2;
             this->textBox3->TabStop = false;
-            this->textBox3->Text = resources->GetString(L"textBox3.Text");
+            this->textBox3->Text = L"--\r\n";
             this->textBox3->TextChanged += gcnew System::EventHandler(this, &Form1::textBox3_TextChanged);
             // 
             // textBox8

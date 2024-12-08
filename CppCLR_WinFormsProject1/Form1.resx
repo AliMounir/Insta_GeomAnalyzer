@@ -117,32 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="textBox3.Text" xml:space="preserve">
-    <value> Abmaße: 00,0x00,0x00,0mm
- Oberfläche: 00,00 mm²
- Volumen: 00,00 mm³
- Boxvolumen: 00,00 mm³  (00,00%)
- 
-----------------------------------------------------------------
- 
- Parallelität (Hauptflächen): 0,0
- x-Symmetrie (2.HTA): 00,0%
- y-Symmetrie (3.HTA): 00,00%
- Ø Spiegelsymmetrie: 00,00%
- Rotationssymmetrie: 00,00%
- Wandstärke: 00,00mm  (00,00%)
- 
-----------------------------------------------------------------
- 
- Profilerkennung: 00,00%
- Planare Flächen: 00,00%
- 1x-Gekrümmte Flächen: 00,00%
- 2x-Gekrümmte Flächen: 00,00%
- Andere Flächenanteile: 00,00%
- 
-----------------------------------------------------------------
- 
- Biegungen: 00,00%
- int. Geschlossenheit: 00,00%</value>
-  </data>
 </root>
