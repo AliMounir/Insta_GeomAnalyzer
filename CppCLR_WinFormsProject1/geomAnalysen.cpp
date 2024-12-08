@@ -83,7 +83,6 @@ std::vector<FaceArea> GetFacesWithArea(const TopoDS_Shape& shape) {
 
         // Output face information
         std::cout << "Face Index: " << i << ", Address: " << &face << ", Area: " << area << " mm^2" << std::endl;
-        std::cout.flush();
 
         // Store the face and its area
         facesWithArea.push_back({ face, area });
@@ -318,7 +317,6 @@ double CheckLinSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
     
     std::vector<double> scores;
     std::cout << "SYMMETRIE CHECK BEGINNT... "<< std::endl;
-    std::cout.flush();
 
     try {
         // Step 1: Compute the center of mass as the origin point
@@ -369,12 +367,10 @@ double CheckLinSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
 
             std::cout << "Sampling-Punkt " << i + 1 << ": (" << samplingPoint.X() << ", " << samplingPoint.Y() << ", " << samplingPoint.Z() << ")" << std::endl;
             std::cout << "Anzahl der Schnittpunkte: " << intersectionPoints.size() << std::endl;
-            std::cout.flush();
 
             if (intersectionPoints.empty()) {
                 // Keine Schnittpunkte, Symmetrie kann nicht bestimmt werden
                 std::cout << "Keine Schnittpunkte gefunden! " << std::endl;
-                std::cout.flush();
                 //scores.push_back(0.0);
                 continue;
             }
@@ -401,7 +397,6 @@ double CheckLinSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
 
                 // Ausgabe des Verhältnisses
                 std::cout << "Verhältnis der Distanzen an Sampling-Punkt " << i + 1 << ": " << ratio << std::endl;
-                std::cout.flush();
                 scores.push_back(ratio);
             }
             else if (maxPositiveDistance == 0 && maxNegativeDistance == 0) {
@@ -423,7 +418,6 @@ double CheckLinSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
         //double symmetryScore = sumScores / numSamplings;
 
         std::cout << "Symmetry Score: " << symmetryScore *100 << "%" << std::endl;
-        std::cout.flush();
 
         return symmetryScore;
 
@@ -480,13 +474,11 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
                 double param = ElCLib::Parameter(samplingLine, pnt);
                 paramsOnLine.push_back(param);
                 std::cout << "  Schnittpunkt " << idx + 1 << ": (" << pnt.X() << ", " << pnt.Y() << ", " << pnt.Z() << "), Parameter: " << param << std::endl;
-                std::cout.flush();
             }
             std::sort(paramsOnLine.begin(), paramsOnLine.end());
             double length = std::abs(paramsOnLine.back() - paramsOnLine.front());
 
             std::cout << "Sampling Line " << i + 1 << " Length: " << length << std::endl;
-            std::cout.flush();
             lengths.push_back(length);
         }
 
@@ -529,7 +521,6 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
         }
 
         std::cout << "Median Length: " << medianValue << std::endl;
-        std::cout.flush();
 
         std::vector<double> scores;
         for (double length : lengths) {
@@ -550,18 +541,15 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
         double symmetryScore = sumScores / scores.size();
 
         std::cout << "Rotational Symmetry: " << symmetryScore *100 << "%" << std::endl;
-        std::cout.flush();
         return symmetryScore;
 
     }
     catch (const Standard_Failure& e) {
         std::cerr << "Fehler in CheckRotSymmetry: " << e.GetMessageString() << std::endl;
-        std::cout.flush();
         return 0.0;
     }
     catch (const std::exception& e) {
         std::cerr << "Fehler in CheckRotSymmetry: " << e.what() << std::endl;
-        std::cout.flush();
         return 0.0;
     }
 }
@@ -592,7 +580,6 @@ std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& main
     std::cout << "Dimension along mainAxis: " << dimensionMain << std::endl;
     std::cout << "dimensionA: " << dimensionA << std::endl;
     std::cout << "dimensionB: " << dimensionB << std::endl;
-    std::cout.flush();
 
     // Compute the bounding box of the shape
     Bnd_Box boundingBox;
@@ -689,7 +676,6 @@ std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& main
     // Output the results
     std::cout << "Minimal wall thickness (mode value): " << modeValue << std::endl;
     std::cout << "Consistency percentage: " << percentage * 100.0 << "%" << std::endl;
-    std::cout.flush();
 
     return wandStärke;
 }
@@ -737,7 +723,6 @@ std::pair<TopoDS_Face, TopoDS_Face> GetTwoLargestFaces(const TopoDS_Shape& shape
             std::cout << "Selected as second largest face: Index " << i + 1 << std::endl;
             break;
         }
-        std::cout.flush();
     }
 
     if (!foundSecondFace) {
@@ -775,7 +760,7 @@ double FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape) {
 
 
         std::cout << "Insgesamt für die Parallelität der zwei Hauptflächen: " << score * 100 << "%" << std::endl;
-        std::cout.flush();
+
         return score;
     }
     catch (const std::exception& e) {
@@ -805,7 +790,6 @@ std::vector<double> checkCurvePercentage(const TopoDS_Shape& shape) {
     double otherArea = 0.0;
 
     std::cout << "Amount of faces identified: " << facesWithArea.size() << std::endl;
-    std::cout.flush();
 
     // Iterate over all faces
     for (size_t i = 0; i < facesWithArea.size(); ++i) {
@@ -840,7 +824,6 @@ std::vector<double> checkCurvePercentage(const TopoDS_Shape& shape) {
             otherArea += area;
             std::cout << "other face at index " << i + 1 << " with area " << area << " mm^2" << std::endl;
         }
-        std::cout.flush();
     }
 
     // Compute percentage of curved area
@@ -867,7 +850,6 @@ std::vector<double> checkCurvePercentage(const TopoDS_Shape& shape) {
     std::cout << "Einfach gekrümmte Fläche: " << singleCurvedArea << " mm² (" << singleCurvedPercentage * 100.0 << "%)" << std::endl;
     std::cout << "Doppelt gekrümmte Fläche: " << doubleCurvedArea << " mm² (" << doubleCurvedPercentage * 100.0 << "%)" << std::endl;
     std::cout << "Andere Fläche: " << otherArea << " mm² (" << otherPercentage * 100.0 << "%)" << std::endl;
-    std::cout.flush();
 
     return curvaturePercentages;
 }
@@ -952,7 +934,6 @@ TopoDS_Wire GetCrossSection(const TopoDS_Shape& shape, const gp_Ax1& axis, doubl
         edgeCount++;
     }
     std::cout << "Anzahl der gefundenen Kanten: " << edgeCount << std::endl;
-    std::cout.flush();
 
     if (!hasEdges) {
         throw std::runtime_error("Keine Schnittkanten gefunden.");
@@ -1160,7 +1141,6 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
             else {
                 std::cout << "Keine Schnittpunkte." << std::endl;
             }
-            std::cout.flush();
         }
 
         // Berechne den Prozentsatz

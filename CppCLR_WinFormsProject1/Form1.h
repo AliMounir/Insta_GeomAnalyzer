@@ -61,6 +61,8 @@ namespace CppCLRWinFormsProject {
         {
             InitializeComponent();
 
+            std::cout.setf(std::ios::unitbuf);
+
             textBoxStreamBuf = new TextBoxStreamBuf(gcnew System::Action<System::String^>(this, &Form1::AppendTextToTextBox));
             oldBuf = std::cout.rdbuf(textBoxStreamBuf);
             std::cout << "Umleitung von std::cout erfolgreich.\n";
@@ -429,52 +431,303 @@ namespace CppCLRWinFormsProject {
 
     private: System::Void textBox4_TextChanged(System::Object^ sender, System::EventArgs^ e) {
     }
-           private: void ResetForNewAnalysis() {
+    private: void ResetForNewAnalysis() {
 
-               std::cout.flush();
-               if (textBoxStreamBuf) {
-                   std::cout.rdbuf(oldBuf);
-                   delete textBoxStreamBuf;
-                   textBoxStreamBuf = nullptr;
-               }
-               textBox2->Clear();
+        std::cout.flush();
+        if (textBoxStreamBuf) {
+            std::cout.rdbuf(oldBuf);
+            delete textBoxStreamBuf;
+            textBoxStreamBuf = nullptr;
+        }
+        textBox2->Clear();
 
-               // Clear old shapes
-               std::cout << "Analysis started.. " << std::endl;
-               myAISContext->EraseAll(Standard_True);
-               myAISContext->UpdateCurrentViewer();
-               myView->FitAll();
-               myView->Redraw();
-               myView->MustBeResized();
+        // Clear old shapes
+        std::cout << "Analysis started.. " << std::endl;
+        myAISContext->EraseAll(Standard_True);
+        myAISContext->UpdateCurrentViewer();
+        myView->FitAll();
+        myView->Redraw();
+        myView->MustBeResized();
 
-               // Redraw coordinate system
-               gp_Pnt origin(0, 0, 0);
-               TopoDS_Vertex vertex1 = BRepBuilderAPI_MakeVertex(origin);
-               Handle(AIS_Shape) originPoint = new AIS_Shape(vertex1);
-               myAISContext->Display(originPoint, true);
-               Standard_Real axisLength = 20;
-               gp_Pnt xAxisEnd(axisLength, 0, 0);
-               TopoDS_Edge xAxisEdge = BRepBuilderAPI_MakeEdge(origin, xAxisEnd);
-               Handle(AIS_Shape) aisXAxis = new AIS_Shape(xAxisEdge);
-               myAISContext->SetColor(aisXAxis, Quantity_NOC_RED, Standard_False);
-               myAISContext->Display(aisXAxis, Standard_False);
-               gp_Pnt yAxisEnd(0, axisLength, 0);
-               TopoDS_Edge yAxisEdge = BRepBuilderAPI_MakeEdge(origin, yAxisEnd);
-               Handle(AIS_Shape) aisYAxis = new AIS_Shape(yAxisEdge);
-               myAISContext->SetColor(aisYAxis, Quantity_NOC_GREEN, Standard_False);
-               myAISContext->Display(aisYAxis, Standard_False);
-               gp_Pnt zAxisEnd(0, 0, axisLength);
-               TopoDS_Edge zAxisEdge = BRepBuilderAPI_MakeEdge(origin, zAxisEnd);
-               Handle(AIS_Shape) aisZAxis = new AIS_Shape(zAxisEdge);
-               myAISContext->SetColor(aisZAxis, Quantity_NOC_BLUE1, Standard_False);
-               myAISContext->Display(aisZAxis, Standard_False);
-               myAISContext->UpdateCurrentViewer();
-               myAISContext->UpdateCurrentViewer();
+        // Redraw coordinate system
+        gp_Pnt origin(0, 0, 0);
+        TopoDS_Vertex vertex1 = BRepBuilderAPI_MakeVertex(origin);
+        Handle(AIS_Shape) originPoint = new AIS_Shape(vertex1);
+        myAISContext->Display(originPoint, true);
+        Standard_Real axisLength = 20;
+        gp_Pnt xAxisEnd(axisLength, 0, 0);
+        TopoDS_Edge xAxisEdge = BRepBuilderAPI_MakeEdge(origin, xAxisEnd);
+        Handle(AIS_Shape) aisXAxis = new AIS_Shape(xAxisEdge);
+        myAISContext->SetColor(aisXAxis, Quantity_NOC_RED, Standard_False);
+        myAISContext->Display(aisXAxis, Standard_False);
+        gp_Pnt yAxisEnd(0, axisLength, 0);
+        TopoDS_Edge yAxisEdge = BRepBuilderAPI_MakeEdge(origin, yAxisEnd);
+        Handle(AIS_Shape) aisYAxis = new AIS_Shape(yAxisEdge);
+        myAISContext->SetColor(aisYAxis, Quantity_NOC_GREEN, Standard_False);
+        myAISContext->Display(aisYAxis, Standard_False);
+        gp_Pnt zAxisEnd(0, 0, axisLength);
+        TopoDS_Edge zAxisEdge = BRepBuilderAPI_MakeEdge(origin, zAxisEnd);
+        Handle(AIS_Shape) aisZAxis = new AIS_Shape(zAxisEdge);
+        myAISContext->SetColor(aisZAxis, Quantity_NOC_BLUE1, Standard_False);
+        myAISContext->Display(aisZAxis, Standard_False);
+        myAISContext->UpdateCurrentViewer();
+        myAISContext->UpdateCurrentViewer();
 
-               // Clear output TextBox
-               std::cout.flush();
-               textBox2->Clear();
-           }
+        std::cout.flush();
+    }
+
+
+private: void PerformAnalysis() {
+    try {
+        std::cout << "Start der Analyse..." << std::endl;
+        std::cout.flush();
+
+        // Read the STEP file path from textBox1
+        System::String^ managedFilePath = textBox1->Text;
+        pin_ptr<const wchar_t> wch = PtrToStringChars(managedFilePath);
+        int len = managedFilePath->Length;
+        std::string filePath;
+        filePath.reserve(len);
+        for (int i = 0; i < len; i++) {
+            filePath.push_back(static_cast<char>(wch[i]));
+        }
+        Standard_CString stepFilePath = filePath.c_str();
+
+        if (filePath.empty()) {
+            MessageBox::Show("No STEP file path provided!");
+            return;
+        }
+
+        int tolerance;
+        if (System::Int32::TryParse(textBox7->Text, tolerance)) {
+            std::cout << "Tolerance inputted is: " << tolerance << std::endl;
+        }
+        else {
+            MessageBox::Show("INVALID TOLERANCE ENTERED");
+            return;
+        }
+
+        //Standard_CString stepFilePath = "C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
+        int samplingAmount = 16; // am besten immer eine Zahl teilbar durch 4
+        //this->textBox1->Text = gcnew System::String(stepFilePath);
+        TopoDS_Shape importedShape = ImportSTEP(stepFilePath);
+        if (importedShape.IsNull()) {
+            std::cout << "Failed to import the STEP file!" << std::endl;
+            return;
+        }
+        std::cout << "Analyzing STEP file: " << stepFilePath << std::endl;
+        //BRepTools::Clean(importedShape);
+        STEPInfo stepInfo = InspectShape(importedShape);
+        TopoDS_Shape centeredShape = CenterShape(importedShape);
+        GeomInfo bauteilInfo = getBasicInfo(centeredShape);
+
+        double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
+        double largestDimension = std::max({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
+        gp_Dir mainAxis = GetPrincipalInertiaAxes(centeredShape)[0];
+        gp_Dir midAxis = GetPrincipalInertiaAxes(centeredShape)[1];
+        gp_Dir minAxis = GetPrincipalInertiaAxes(centeredShape)[2];
+        double länge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
+        double durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
+        double durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);
+
+        double parallelitätGroßFlächen = FindLargestFacesAndCheckParallel(centeredShape);
+        
+        std::vector<gp_Lin> samplingLines;
+        std::vector<gp_Lin> samplingLines2;
+        std::vector<gp_Lin> samplingLines3;
+        std::vector<gp_Lin> samplingLines4;
+        std::vector<gp_Lin> samplingLines5;
+        std::vector<gp_Lin> samplingLines6;
+        double symmetrieMid = CheckLinSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 2, samplingLines2);
+        double symmetrieMin = CheckLinSymmetry(centeredShape, mainAxis, minAxis, samplingAmount * 2, samplingLines3);
+        double gesamtSymmetrie = (symmetrieMin + symmetrieMid) / 2;
+        double rotSym = CheckRotSymmetry(centeredShape, mainAxis, midAxis, samplingAmount, samplingLines4);
+        
+
+        double wandStaerke = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[0];
+        double wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
+        if (wandStaerke > smallestDimension) {
+            samplingLines.clear();
+            std::cout << "Berechnete Wandstärke ist größer als kleinstest Bauteilabmaß, wechsele Berechnung auf ThirdAxisOfInertia()." << std::endl;
+            wandStaerke = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[0];
+            wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
+        }
+        else {
+            std::cout << "Berechnete Wandstärke besteht so!!" << std::endl;
+        }
+        
+        double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
+        
+        double planarAnteil = checkCurvePercentage(centeredShape)[0];
+        double einfachKrümmungsAnteil = checkCurvePercentage(centeredShape)[1];
+        double zweifachKrümmungsAnteil = checkCurvePercentage(centeredShape)[2];
+        double andererAnteil = checkCurvePercentage(centeredShape)[3];
+        
+
+        std::vector<gp_Pnt> visitedPoints;
+        double innenStruktur = checkHohlraum(centeredShape, samplingAmount * 2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, 0);
+        
+
+        double biegeScore = 0.0;
+
+
+
+
+        //Verfahrensberechnungen
+        double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
+        double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSym, profileScore, bauteilInfo.volumeRatio, innenStruktur, zweifachKrümmungsAnteil, einfachKrümmungsAnteil, andererAnteil, planarAnteil);
+        double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSym, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
+        double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
+        double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
+        double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
+        //System::String^ prefVerfahren = "Präferrenz Verfahren";
+        std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.72);
+        
+
+
+
+        //Ergebnisse Tabelle
+        System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder();
+        sb->AppendLine(" Abmaße: " + bauteilInfo.xDimension.ToString("F1") + "x" + bauteilInfo.yDimension.ToString("F1") + "x" + bauteilInfo.zDimension.ToString("F1") + "mm");
+        sb->AppendLine(" Oberfläche: " + bauteilInfo.surfaceArea.ToString("F2") + " mm²");
+        sb->AppendLine(" Volumen: " + bauteilInfo.volume.ToString("F2") + " mm³");
+        sb->AppendLine(" Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm³  (" + (bauteilInfo.volumeRatio * 100).ToString("F2") + "%)");
+        sb->AppendLine(" ");
+        sb->AppendLine("----------------------------------------------------------------");
+        sb->AppendLine(" ");
+        sb->AppendLine(" Parallelität (Hauptflächen): " + (parallelitätGroßFlächen).ToString("F1"));
+        sb->AppendLine(" x-Symmetrie (2.HTA): " + (symmetrieMid * 100).ToString("F2") + "%");
+        sb->AppendLine(" y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
+        sb->AppendLine(" Ø Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
+        sb->AppendLine(" Rotationssymmetrie: " + (rotSym * 100).ToString("F2") + "%");
+        sb->AppendLine(" Wandstärke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent * 100).ToString("F2") + "%)");
+        sb->AppendLine(" ");
+        sb->AppendLine("----------------------------------------------------------------");
+        sb->AppendLine(" ");
+        sb->AppendLine(" Profilerkennung: " + (profileScore * 100).ToString("F2") + "%");
+        sb->AppendLine(" Planare Flächen: " + (planarAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" 1x-Gekrümmte Flächen: " + (einfachKrümmungsAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" 2x-Gekrümmte Flächen: " + (zweifachKrümmungsAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" Andere Flächenanteile: " + (andererAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" ");
+        sb->AppendLine("----------------------------------------------------------------");
+        sb->AppendLine(" ");
+        sb->AppendLine("Biegungen: " + (biegeScore * 100).ToString("F2") + "%");
+        sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
+        textBox3->Text = sb->ToString();
+        
+
+
+        System::Text::StringBuilder^ sd = gcnew System::Text::StringBuilder();
+        sd->AppendLine(" CNC-Fräsen: " + (fraesen * 100).ToString("F2") + "%");
+        sd->AppendLine(" CNC-Drehen: " + (drehen * 100).ToString("F2") + "%");
+        sd->AppendLine(" CNC-Blech: " + (blech2d * 100).ToString("F2") + "%");
+        sd->AppendLine(" Biegeblech: " + (blech3d * 100).ToString("F2") + "%");
+        sd->AppendLine(" Rohrlaser: " + (rohrlaser * 100).ToString("F2") + "%");
+        sd->AppendLine(" Additive: " + (additivesV * 100).ToString("F2") + "%");
+        textBox8->Text = sd->ToString();
+        
+
+        System::String^ mPrefVerf = gcnew System::String(prefVerfahren.c_str());
+        System::Text::StringBuilder^ sP = gcnew System::Text::StringBuilder();
+        sP->AppendLine(mPrefVerf);
+        textBox9->Text = sP->ToString();
+        
+
+
+
+        //Beispiel Visualisierungen
+        Bnd_Box boundingBox;
+        BRepBndLib::Add(centeredShape, boundingBox);
+
+        Standard_Real xmin, ymin, zmin, xmax, ymax, zmax;
+        boundingBox.Get(xmin, ymin, zmin, xmax, ymax, zmax);
+
+        double dx = xmax - xmin;
+        double dy = ymax - ymin;
+        double dz = zmax - zmin;
+        double boundingBoxLength = sqrt(dx * dx + dy * dy + dz * dz);
+
+        // Use half of the bounding box length for the lines
+        double length = boundingBoxLength / 2.0;
+
+        for (const auto& line : samplingLines6) {
+            // Define the start and end points of the line segment
+            gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
+            gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
+
+            // Create an edge from the line segment
+            TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(P1, P2);
+
+            // Create an AIS_Shape for visualization
+            Handle(AIS_Shape) aisEdge = new AIS_Shape(edge);
+            aisEdge->SetColor(Quantity_NOC_WHITE); // Set the color of the line
+            aisEdge->SetWidth(1.0); // Optional: set the width of the line
+
+            // Display the line in the viewer
+            myAISContext->Display(aisEdge, Standard_True);
+        }
+
+        // Redisplay the viewer
+        myAISContext->UpdateCurrentViewer();
+
+        
+
+
+
+
+
+        //Andere display text boxes infos
+        System::Text::StringBuilder^ sa = gcnew System::Text::StringBuilder();
+        sa->AppendLine(" - Solids: " + stepInfo.numSolids.ToString("D3"));
+        sa->AppendLine(" - Shells: " + stepInfo.numShells.ToString("D3"));
+        sa->AppendLine(" - Flächen: " + stepInfo.numFaces.ToString("D3"));
+        sa->AppendLine(" - Kanten: " + stepInfo.numEdges.ToString("D3"));
+        sa->AppendLine(" - Ecken: " + stepInfo.numVertices.ToString("D3"));
+        textBox4->Text = sa->ToString();
+
+        System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
+        sc->AppendLine(" SP (" + bauteilInfo.center.X().ToString("F1") + "/" + bauteilInfo.center.Y().ToString("F1") + "/" + bauteilInfo.center.Z().ToString("F1") + ")");
+        sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
+        sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
+        sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
+        textBox5->Text = sc->ToString();
+
+
+
+        
+
+
+        // Überprüfen, ob das Shape gültig ist
+        if (!importedShape.IsNull()) {
+            // Erstellen eines AIS_Shape aus dem importierten Shape
+            Handle(AIS_Shape) aisShape = new AIS_Shape(centeredShape);
+
+            // Anzeigen des Shapes im Viewer
+            myAISContext->Display(aisShape, Standard_True);
+
+            // Die Ansicht anpassen, um das gesamte Shape anzuzeigen
+            myView->FitAll();
+            myView->Redraw();
+        }
+        else {
+            std::cout << "Das importierte Shape ist ungültig." << std::endl;
+        }
+
+        std::cout << "Analyse abgeschlossen.\n";
+        std::cout.flush();
+    }
+    catch (const std::exception& ex) {
+        std::cout << "Fehler während der Analyse: " << ex.what() << std::endl;
+        std::cout.flush();
+    }
+    catch (...) {
+        std::cout << "Unbekannter Fehler während der Analyse." << std::endl;
+        std::cout.flush();
+    }
+    
+}
+
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 
     ResetForNewAnalysis();
@@ -482,252 +735,14 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
     textBoxStreamBuf = new TextBoxStreamBuf(gcnew System::Action<System::String^>(this, &Form1::AppendTextToTextBox));
     oldBuf = std::cout.rdbuf(textBoxStreamBuf);
 
-    // Read the STEP file path from textBox1
-    System::String^ managedFilePath = textBox1->Text;
-    pin_ptr<const wchar_t> wch = PtrToStringChars(managedFilePath);
-    int len = managedFilePath->Length;
-    std::string filePath;
-    filePath.reserve(len);
-    for (int i = 0; i < len; i++) {
-        filePath.push_back(static_cast<char>(wch[i]));
-    }
-    Standard_CString stepFilePath = filePath.c_str();
-
-    if (filePath.empty()) {
-        MessageBox::Show("No STEP file path provided!");
-        return;
-    }
-
-    int tolerance;
-    if (System::Int32::TryParse(textBox7->Text, tolerance)) {
-        std::cout << "Tolerance inputted is: " << tolerance << std::endl;
-    }
-    else {
-        MessageBox::Show("INVALID TOLERANCE ENTERED");
-        return;
-    }
-
-    //Standard_CString stepFilePath = "C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
-    int samplingAmount = 16; // am besten immer eine Zahl teilbar durch 4
-    //this->textBox1->Text = gcnew System::String(stepFilePath);
-    TopoDS_Shape importedShape = ImportSTEP(stepFilePath);
-    if (importedShape.IsNull()) {
-        std::cout << "Failed to import the STEP file!" << std::endl;
-        return;
-    }
-    std::cout << "Analyzing STEP file: " << stepFilePath << std::endl;
-    //BRepTools::Clean(importedShape);
-    STEPInfo stepInfo = InspectShape(importedShape);
-    TopoDS_Shape centeredShape = CenterShape(importedShape);
-    GeomInfo bauteilInfo = getBasicInfo(centeredShape);
-
-    double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
-    double largestDimension = std::max({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
-    gp_Dir mainAxis = GetPrincipalInertiaAxes(centeredShape)[0];
-    gp_Dir midAxis = GetPrincipalInertiaAxes(centeredShape)[1];
-    gp_Dir minAxis = GetPrincipalInertiaAxes(centeredShape)[2];
-    double länge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
-    double durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
-    double durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);
-
-    double parallelitätGroßFlächen = FindLargestFacesAndCheckParallel(centeredShape);
-
-    std::vector<gp_Lin> samplingLines;
-    std::vector<gp_Lin> samplingLines2;
-    std::vector<gp_Lin> samplingLines3;
-    std::vector<gp_Lin> samplingLines4;
-    std::vector<gp_Lin> samplingLines5;
-    std::vector<gp_Lin> samplingLines6;
-    double symmetrieMid = CheckLinSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 2, samplingLines2);
-    double symmetrieMin = CheckLinSymmetry(centeredShape, mainAxis, minAxis, samplingAmount * 2, samplingLines3);
-    double gesamtSymmetrie = (symmetrieMin + symmetrieMid) / 2;
-    double rotSym = CheckRotSymmetry(centeredShape, mainAxis, midAxis, samplingAmount, samplingLines4);
-
-
-    double wandStaerke = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[0];
-    double wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
-    if (wandStaerke > smallestDimension) {
-        samplingLines.clear();
-        std::cout << "Berechnete Wandstärke ist größer als kleinstest Bauteilabmaß, wechsele Berechnung auf ThirdAxisOfInertia()." << std::endl;
-        wandStaerke = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[0];
-        wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
-    }
-    else {
-        std::cout << "Berechnete Wandstärke besteht so!!" << std::endl;
-    }
-
-    double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
-
-    double planarAnteil = checkCurvePercentage(centeredShape)[0];
-    double einfachKrümmungsAnteil = checkCurvePercentage(centeredShape)[1];
-    double zweifachKrümmungsAnteil = checkCurvePercentage(centeredShape)[2];
-    double andererAnteil = checkCurvePercentage(centeredShape)[3];
-
-
-    std::vector<gp_Pnt> visitedPoints;
-    double innenStruktur = checkHohlraum(centeredShape, samplingAmount * 2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, 0);
+    PerformAnalysis();
+    //System::Threading::Tasks::Task::Run(gcnew Action(this, &Form1::PerformAnalysis));
     
-
-    double biegeScore = 0.0;
-
-
-
-
-    //Verfahrensberechnungen
-    double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
-    double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSym, profileScore, bauteilInfo.volumeRatio, innenStruktur, zweifachKrümmungsAnteil, einfachKrümmungsAnteil, andererAnteil, planarAnteil);
-    double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSym, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
-    double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
-    double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
-    double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
-    //System::String^ prefVerfahren = "Präferrenz Verfahren";
-    std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.72);
-
-
-
-
-    //Ergebnisse Tabelle
-    System::Text::StringBuilder^ sb = gcnew System::Text::StringBuilder();
-    sb->AppendLine(" Abmaße: " + bauteilInfo.xDimension.ToString("F1") + "x" + bauteilInfo.yDimension.ToString("F1") + "x" + bauteilInfo.zDimension.ToString("F1") + "mm");
-    sb->AppendLine(" Oberfläche: " + bauteilInfo.surfaceArea.ToString("F2") + " mm²");
-    sb->AppendLine(" Volumen: " + bauteilInfo.volume.ToString("F2") + " mm³");
-    sb->AppendLine(" Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm³  (" + (bauteilInfo.volumeRatio * 100).ToString("F2") + "%)");
-    sb->AppendLine(" ");
-    sb->AppendLine("----------------------------------------------------------------");
-    sb->AppendLine(" ");
-    sb->AppendLine(" Parallelität (Hauptflächen): " + (parallelitätGroßFlächen).ToString("F1"));
-    sb->AppendLine(" x-Symmetrie (2.HTA): " + (symmetrieMid * 100).ToString("F2") + "%");
-    sb->AppendLine(" y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
-    sb->AppendLine(" Ø Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
-    sb->AppendLine(" Rotationssymmetrie: " + (rotSym * 100).ToString("F2") + "%");
-    sb->AppendLine(" Wandstärke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent * 100).ToString("F2") + "%)");
-    sb->AppendLine(" ");
-    sb->AppendLine("----------------------------------------------------------------");
-    sb->AppendLine(" ");
-    sb->AppendLine(" Profilerkennung: " + (profileScore * 100).ToString("F2") + "%");
-    sb->AppendLine(" Planare Flächen: " + (planarAnteil * 100).ToString("F2") + "%");
-    sb->AppendLine(" 1x-Gekrümmte Flächen: " + (einfachKrümmungsAnteil * 100).ToString("F2") + "%");
-    sb->AppendLine(" 2x-Gekrümmte Flächen: " + (zweifachKrümmungsAnteil * 100).ToString("F2") + "%");
-    sb->AppendLine(" Andere Flächenanteile: " + (andererAnteil * 100).ToString("F2") + "%");
-    sb->AppendLine(" ");
-    sb->AppendLine("----------------------------------------------------------------");
-    sb->AppendLine(" ");
-    sb->AppendLine("Biegungen: " + (biegeScore * 100).ToString("F2") + "%");
-    sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
-    textBox3->Text = sb->ToString();
-
-
-
-    System::Text::StringBuilder^ sd = gcnew System::Text::StringBuilder();
-    sd->AppendLine(" CNC-Fräsen: " + (fraesen * 100).ToString("F2") + "%");
-    sd->AppendLine(" CNC-Drehen: " + (drehen * 100).ToString("F2") + "%");
-    sd->AppendLine(" CNC-Blech: " + (blech2d * 100).ToString("F2") + "%");
-    sd->AppendLine(" Biegeblech: " + (blech3d * 100).ToString("F2") + "%");
-    sd->AppendLine(" Rohrlaser: " + (rohrlaser * 100).ToString("F2") + "%");
-    sd->AppendLine(" Additive: " + (additivesV * 100).ToString("F2") + "%");
-    textBox8->Text = sd->ToString();
-
-
-    System::String^ mPrefVerf = gcnew System::String(prefVerfahren.c_str());
-    System::Text::StringBuilder^ sP = gcnew System::Text::StringBuilder();
-    sP->AppendLine(mPrefVerf);
-    textBox9->Text = sP->ToString();
-
-
-
-
-    //Beispiel Visualisierungen
-    Bnd_Box boundingBox;
-    BRepBndLib::Add(centeredShape, boundingBox);
-
-    Standard_Real xmin, ymin, zmin, xmax, ymax, zmax;
-    boundingBox.Get(xmin, ymin, zmin, xmax, ymax, zmax);
-
-    double dx = xmax - xmin;
-    double dy = ymax - ymin;
-    double dz = zmax - zmin;
-    double boundingBoxLength = sqrt(dx * dx + dy * dy + dz * dz);
-
-    // Use half of the bounding box length for the lines
-    double length = boundingBoxLength / 2.0;
-
-    for (const auto& line : samplingLines6) {
-        // Define the start and end points of the line segment
-        gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
-        gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
-
-        // Create an edge from the line segment
-        TopoDS_Edge edge = BRepBuilderAPI_MakeEdge(P1, P2);
-
-        // Create an AIS_Shape for visualization
-        Handle(AIS_Shape) aisEdge = new AIS_Shape(edge);
-        aisEdge->SetColor(Quantity_NOC_WHITE); // Set the color of the line
-        aisEdge->SetWidth(1.0); // Optional: set the width of the line
-
-        // Display the line in the viewer
-        myAISContext->Display(aisEdge, Standard_True);
-    }
-
-    // Redisplay the viewer
-    myAISContext->UpdateCurrentViewer();
-
-
-
-
-
-
-
-    //Andere display text boxes infos
-    System::Text::StringBuilder^ sa = gcnew System::Text::StringBuilder();
-    sa->AppendLine(" - Solids: " + stepInfo.numSolids.ToString("D3"));
-    sa->AppendLine(" - Shells: " + stepInfo.numShells.ToString("D3"));
-    sa->AppendLine(" - Flächen: " + stepInfo.numFaces.ToString("D3"));
-    sa->AppendLine(" - Kanten: " + stepInfo.numEdges.ToString("D3"));
-    sa->AppendLine(" - Ecken: " + stepInfo.numVertices.ToString("D3"));
-    textBox4->Text = sa->ToString();
-
-    System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
-    sc->AppendLine(" SP (" + bauteilInfo.center.X().ToString("F1") + "/" + bauteilInfo.center.Y().ToString("F1") + "/" + bauteilInfo.center.Z().ToString("F1") + ")");
-    sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
-    sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
-    sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
-    textBox5->Text = sc->ToString();
-
-
-
-
-
-
-    // Überprüfen, ob das Shape gültig ist
-    if (!importedShape.IsNull()) {
-        // Erstellen eines AIS_Shape aus dem importierten Shape
-        Handle(AIS_Shape) aisShape = new AIS_Shape(centeredShape);
-
-        // Anzeigen des Shapes im Viewer
-        myAISContext->Display(aisShape, Standard_True);
-
-        // Die Ansicht anpassen, um das gesamte Shape anzuzeigen
-        myView->FitAll();
-        myView->Redraw();
-    }
-    else {
-        std::cout << "Das importierte Shape ist ungültig." << std::endl;
-    }
-
 }
 private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }
 
-private: void PerformAnalysis() {
-    // Ihre gesamte Analyse-Logik hier
-    // Beispielausgabe:
-    std::cout << "Start der Analyse..." << std::endl;
 
-    // ... Ihr vorhandener Analyse-Code ...
-
-    // Beispielabschluss
-    std::cout << "Analyse abgeschlossen." << std::endl;
-}
 
     System::Void Form1_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
     std::cout.flush();
@@ -740,18 +755,7 @@ private: void PerformAnalysis() {
 
     std::cout.flush();
 }
-       protected:
-           virtual void OnFormClosing(System::Windows::Forms::FormClosingEventArgs^ e) override {
-               std::cout.flush(); // Flush the output
-               if (textBoxStreamBuf) {
-                   std::cout.rdbuf(oldBuf); // Restore original stream buffer
-                   delete textBoxStreamBuf; // Delete custom stream buffer
-                   textBoxStreamBuf = nullptr;
-               }
 
-               // Call base class OnFormClosing to ensure the form closes
-               System::Windows::Forms::Form::OnFormClosing(e);
-           }
 private: System::Void textBox9_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 }
 };
