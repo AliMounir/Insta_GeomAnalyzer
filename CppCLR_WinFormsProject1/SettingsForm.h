@@ -42,6 +42,7 @@ namespace CppCLR_WinFormsProject1 {
 	private: System::Windows::Forms::TextBox^ textBox4;
 	private: System::Windows::Forms::TextBox^ textBox5;
 	private: System::Windows::Forms::Button^ button1;
+	private: System::Windows::Forms::TextBox^ textBox6;
 
 	private:
 		/// <summary>
@@ -63,6 +64,7 @@ namespace CppCLR_WinFormsProject1 {
 			this->textBox4 = (gcnew System::Windows::Forms::TextBox());
 			this->textBox5 = (gcnew System::Windows::Forms::TextBox());
 			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->textBox6 = (gcnew System::Windows::Forms::TextBox());
 			this->SuspendLayout();
 			// 
 			// hScrollBar1
@@ -130,7 +132,7 @@ namespace CppCLR_WinFormsProject1 {
 			// 
 			this->textBox5->BackColor = System::Drawing::SystemColors::Menu;
 			this->textBox5->BorderStyle = System::Windows::Forms::BorderStyle::None;
-			this->textBox5->Location = System::Drawing::Point(66, 244);
+			this->textBox5->Location = System::Drawing::Point(57, 349);
 			this->textBox5->Multiline = true;
 			this->textBox5->Name = L"textBox5";
 			this->textBox5->Size = System::Drawing::Size(181, 31);
@@ -149,11 +151,24 @@ namespace CppCLR_WinFormsProject1 {
 			this->button1->UseVisualStyleBackColor = true;
 			this->button1->Click += gcnew System::EventHandler(this, &SettingsForm::button1_Click);
 			// 
+			// textBox6
+			// 
+			this->textBox6->BackColor = System::Drawing::SystemColors::Menu;
+			this->textBox6->BorderStyle = System::Windows::Forms::BorderStyle::None;
+			this->textBox6->Location = System::Drawing::Point(37, 220);
+			this->textBox6->Multiline = true;
+			this->textBox6->Name = L"textBox6";
+			this->textBox6->Size = System::Drawing::Size(239, 31);
+			this->textBox6->TabIndex = 7;
+			this->textBox6->TabStop = false;
+			this->textBox6->Text = L"threshold for preferred manufacturing";
+			// 
 			// SettingsForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(547, 310);
+			this->ClientSize = System::Drawing::Size(547, 426);
+			this->Controls->Add(this->textBox6);
 			this->Controls->Add(this->button1);
 			this->Controls->Add(this->textBox5);
 			this->Controls->Add(this->textBox4);

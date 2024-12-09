@@ -82,6 +82,8 @@ namespace CppCLRWinFormsProject {
         TextBoxStreamBuf* textBoxStreamBuf;
         std::streambuf* oldBuf;
     private: System::Windows::Forms::Button^ button2;
+    private: System::Windows::Forms::Button^ button4;
+    private: System::Windows::Forms::Button^ button3;
            System::ComponentModel::Container^ components;
 
 
@@ -129,11 +131,14 @@ namespace CppCLRWinFormsProject {
             this->textBox9 = (gcnew System::Windows::Forms::TextBox());
             this->textBox10 = (gcnew System::Windows::Forms::TextBox());
             this->button2 = (gcnew System::Windows::Forms::Button());
+            this->button3 = (gcnew System::Windows::Forms::Button());
+            this->button4 = (gcnew System::Windows::Forms::Button());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
             // panel1
             // 
+            this->panel1->Controls->Add(this->button4);
             this->panel1->Controls->Add(this->textBox7);
             this->panel1->Controls->Add(this->textBox6);
             this->panel1->Controls->Add(this->textBox5);
@@ -149,9 +154,11 @@ namespace CppCLRWinFormsProject {
             // textBox7
             // 
             this->textBox7->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+            this->textBox7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
             this->textBox7->Location = System::Drawing::Point(1010, 3);
             this->textBox7->Name = L"textBox7";
-            this->textBox7->Size = System::Drawing::Size(36, 22);
+            this->textBox7->Size = System::Drawing::Size(36, 27);
             this->textBox7->TabIndex = 5;
             this->textBox7->TabStop = false;
             this->textBox7->Text = L"1";
@@ -161,11 +168,13 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox6->BackColor = System::Drawing::SystemColors::ControlDarkDark;
             this->textBox6->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+            this->textBox6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
             this->textBox6->ForeColor = System::Drawing::SystemColors::InactiveBorder;
-            this->textBox6->Location = System::Drawing::Point(893, 3);
+            this->textBox6->Location = System::Drawing::Point(864, 3);
             this->textBox6->Name = L"textBox6";
             this->textBox6->ReadOnly = true;
-            this->textBox6->Size = System::Drawing::Size(111, 22);
+            this->textBox6->Size = System::Drawing::Size(140, 27);
             this->textBox6->TabIndex = 4;
             this->textBox6->TabStop = false;
             this->textBox6->Text = L"Toleranzen: 1e-";
@@ -195,7 +204,7 @@ namespace CppCLRWinFormsProject {
             this->textBox4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.125F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox4->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox4->Location = System::Drawing::Point(3, 30);
+            this->textBox4->Location = System::Drawing::Point(3, 45);
             this->textBox4->Margin = System::Windows::Forms::Padding(2);
             this->textBox4->Multiline = true;
             this->textBox4->Name = L"textBox4";
@@ -210,10 +219,12 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox1->BackColor = System::Drawing::SystemColors::ControlDarkDark;
             this->textBox1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+            this->textBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
             this->textBox1->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox1->Location = System::Drawing::Point(3, 3);
+            this->textBox1->Location = System::Drawing::Point(34, 3);
             this->textBox1->Name = L"textBox1";
-            this->textBox1->Size = System::Drawing::Size(884, 22);
+            this->textBox1->Size = System::Drawing::Size(824, 27);
             this->textBox1->TabIndex = 1;
             this->textBox1->TabStop = false;
             this->textBox1->Text = L"C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
@@ -313,18 +324,56 @@ namespace CppCLRWinFormsProject {
             // 
             // button2
             // 
+            this->button2->Font = (gcnew System::Drawing::Font(L"Wingdings", 13.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(2)));
+            this->button2->ForeColor = System::Drawing::Color::Black;
             this->button2->Location = System::Drawing::Point(1309, 764);
+            this->button2->Margin = System::Windows::Forms::Padding(0);
             this->button2->Name = L"button2";
             this->button2->Size = System::Drawing::Size(34, 34);
             this->button2->TabIndex = 8;
+            this->button2->Text = L"<";
             this->button2->UseVisualStyleBackColor = true;
+            this->button2->Visible = false;
             this->button2->Click += gcnew System::EventHandler(this, &Form1::button2_Click);
+            // 
+            // button3
+            // 
+            this->button3->Font = (gcnew System::Drawing::Font(L"Wingdings", 18, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(2)));
+            this->button3->ForeColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(64)), static_cast<System::Int32>(static_cast<System::Byte>(64)),
+                static_cast<System::Int32>(static_cast<System::Byte>(64)));
+            this->button3->Location = System::Drawing::Point(1069, 765);
+            this->button3->Margin = System::Windows::Forms::Padding(0);
+            this->button3->Name = L"button3";
+            this->button3->Size = System::Drawing::Size(34, 34);
+            this->button3->TabIndex = 9;
+            this->button3->Text = L"]";
+            this->button3->UseVisualStyleBackColor = true;
+            this->button3->Visible = false;
+            this->button3->Click += gcnew System::EventHandler(this, &Form1::button3_Click);
+            // 
+            // button4
+            // 
+            this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Popup;
+            this->button4->Font = (gcnew System::Drawing::Font(L"Wingdings", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(2)));
+            this->button4->ForeColor = System::Drawing::Color::Red;
+            this->button4->Location = System::Drawing::Point(3, 1);
+            this->button4->Margin = System::Windows::Forms::Padding(0);
+            this->button4->Name = L"button4";
+            this->button4->Size = System::Drawing::Size(28, 29);
+            this->button4->TabIndex = 10;
+            this->button4->TabStop = false;
+            this->button4->Text = L"1";
+            this->button4->UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
+            this->Controls->Add(this->button3);
             this->Controls->Add(this->button2);
             this->Controls->Add(this->textBox10);
             this->Controls->Add(this->textBox9);
@@ -778,6 +827,8 @@ private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e
     settingsForm->ShowDialog();
 
     delete settingsForm;
+}
+private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
 }
 };
 }
