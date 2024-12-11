@@ -165,6 +165,7 @@ namespace CppCLRWinFormsProject {
             this->button4->TabStop = false;
             this->button4->Text = L"1";
             this->button4->UseVisualStyleBackColor = true;
+            this->button4->Click += gcnew System::EventHandler(this, &Form1::button4_Click);
             // 
             // textBox7
             // 
@@ -210,7 +211,7 @@ namespace CppCLRWinFormsProject {
             this->textBox5->Size = System::Drawing::Size(93, 63);
             this->textBox5->TabIndex = 3;
             this->textBox5->TabStop = false;
-            this->textBox5->Text = L" SP (00,00,00)\r\n HA1 (0/0/0)\r\n HA2 (0/0/0)\r\n HA3 (0/0/0)";
+            this->textBox5->Text = L" MSP (00,00,00)\r\n HA1 (0/0/0)\r\n HA2 (0/0/0)\r\n HA3 (0/0/0)";
             // 
             // textBox4
             // 
@@ -219,7 +220,7 @@ namespace CppCLRWinFormsProject {
             this->textBox4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.125F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox4->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox4->Location = System::Drawing::Point(3, 45);
+            this->textBox4->Location = System::Drawing::Point(3, 35);
             this->textBox4->Margin = System::Windows::Forms::Padding(2);
             this->textBox4->Multiline = true;
             this->textBox4->Name = L"textBox4";
@@ -829,6 +830,19 @@ private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e
     delete settingsForm;
 }
 private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e) {
+    OpenFileDialog^ openFileDialog = gcnew OpenFileDialog();
+    openFileDialog->InitialDirectory = "C:\\Users\\Ali Mounir\\Desktop\\TestCads\\";
+    openFileDialog->Filter = "Step files (*.step;*.stp)|*.step;*.stp|All files (*.*)|*.*";
+    openFileDialog->FilterIndex = 1;
+    openFileDialog->RestoreDirectory = true;
+
+    if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+    {
+        String^ filePath = openFileDialog->FileName;
+        this->textBox1->Text = filePath;
+    }
 }
 };
 }
