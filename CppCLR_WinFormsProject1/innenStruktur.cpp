@@ -95,6 +95,7 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
     }
     recursionDepth++;
     // Überprüfe, ob der Startpunkt bereits besucht wurde, um Zyklen zu vermeiden
+    //std::map isElement() sollte schneller!
     for (const auto& p : visitedPoints) {
         if (startPoint.IsEqual(p, Precision::Confusion())) {
             // Punkt wurde bereits besucht

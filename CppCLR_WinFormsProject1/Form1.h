@@ -119,6 +119,7 @@ namespace CppCLRWinFormsProject {
         void InitializeComponent(void)
         {
             this->panel1 = (gcnew System::Windows::Forms::Panel());
+            this->button4 = (gcnew System::Windows::Forms::Button());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
             this->textBox5 = (gcnew System::Windows::Forms::TextBox());
@@ -132,7 +133,6 @@ namespace CppCLRWinFormsProject {
             this->textBox10 = (gcnew System::Windows::Forms::TextBox());
             this->button2 = (gcnew System::Windows::Forms::Button());
             this->button3 = (gcnew System::Windows::Forms::Button());
-            this->button4 = (gcnew System::Windows::Forms::Button());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
@@ -150,6 +150,21 @@ namespace CppCLRWinFormsProject {
             this->panel1->TabIndex = 0;
             this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::panel1_Paint);
             this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
+            // 
+            // button4
+            // 
+            this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Popup;
+            this->button4->Font = (gcnew System::Drawing::Font(L"Wingdings", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(2)));
+            this->button4->ForeColor = System::Drawing::Color::Red;
+            this->button4->Location = System::Drawing::Point(3, 1);
+            this->button4->Margin = System::Windows::Forms::Padding(0);
+            this->button4->Name = L"button4";
+            this->button4->Size = System::Drawing::Size(28, 29);
+            this->button4->TabIndex = 10;
+            this->button4->TabStop = false;
+            this->button4->Text = L"1";
+            this->button4->UseVisualStyleBackColor = true;
             // 
             // textBox7
             // 
@@ -227,7 +242,7 @@ namespace CppCLRWinFormsProject {
             this->textBox1->Size = System::Drawing::Size(824, 27);
             this->textBox1->TabIndex = 1;
             this->textBox1->TabStop = false;
-            this->textBox1->Text = L"C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
+            this->textBox1->Text = L"C:\\Users\\Ali Mounir\\Desktop\\TestCads\\test-platte.stp";
             // 
             // button1
             // 
@@ -352,21 +367,6 @@ namespace CppCLRWinFormsProject {
             this->button3->UseVisualStyleBackColor = true;
             this->button3->Visible = false;
             this->button3->Click += gcnew System::EventHandler(this, &Form1::button3_Click);
-            // 
-            // button4
-            // 
-            this->button4->FlatStyle = System::Windows::Forms::FlatStyle::Popup;
-            this->button4->Font = (gcnew System::Drawing::Font(L"Wingdings", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(2)));
-            this->button4->ForeColor = System::Drawing::Color::Red;
-            this->button4->Location = System::Drawing::Point(3, 1);
-            this->button4->Margin = System::Windows::Forms::Padding(0);
-            this->button4->Name = L"button4";
-            this->button4->Size = System::Drawing::Size(28, 29);
-            this->button4->TabIndex = 10;
-            this->button4->TabStop = false;
-            this->button4->Text = L"1";
-            this->button4->UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -568,7 +568,7 @@ private: void PerformAnalysis() {
             return;
         }
 
-        //Standard_CString stepFilePath = "C:\\Users\\Ali Mounir\\Desktop\\test-platte.stp";
+        //Standard_CString stepFilePath = "C:\\Users\\Ali Mounir\\Desktop\\TestCads\\test-platte.stp";
         int samplingAmount = 16; // am besten immer eine Zahl teilbar durch 4
         //this->textBox1->Text = gcnew System::String(stepFilePath);
         TopoDS_Shape importedShape = ImportSTEP(stepFilePath);
@@ -712,7 +712,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines2) {
+        for (const auto& line : samplingLines6) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
