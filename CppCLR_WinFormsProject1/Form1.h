@@ -203,15 +203,16 @@ namespace CppCLRWinFormsProject {
             this->textBox5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.125F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox5->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox5->Location = System::Drawing::Point(938, 474);
+            this->textBox5->Location = System::Drawing::Point(918, 474);
             this->textBox5->Margin = System::Windows::Forms::Padding(2);
             this->textBox5->Multiline = true;
             this->textBox5->Name = L"textBox5";
             this->textBox5->ReadOnly = true;
-            this->textBox5->Size = System::Drawing::Size(108, 63);
+            this->textBox5->Size = System::Drawing::Size(128, 63);
             this->textBox5->TabIndex = 3;
             this->textBox5->TabStop = false;
             this->textBox5->Text = L" MSP (00,00,00)\r\n HA1 (0/0/0)\r\n HA2 (0/0/0)\r\n HA3 (0/0/0)";
+            this->textBox5->TextAlign = System::Windows::Forms::HorizontalAlignment::Right;
             // 
             // textBox4
             // 
@@ -585,14 +586,84 @@ private: void PerformAnalysis() {
 
         gp_Pnt centerMass = bauteilInfo.centerMass;
         gp_Pnt centerBox = bauteilInfo.centerGeom;
-        double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
+        double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.yDimension });
         double largestDimension = std::max({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
-        gp_Dir mainAxis = GetPrincipalInertiaAxes(centeredShape)[0];
-        gp_Dir midAxis = GetPrincipalInertiaAxes(centeredShape)[1];
-        gp_Dir minAxis = GetPrincipalInertiaAxes(centeredShape)[2];
-        double länge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
-        double durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
-        double durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);
+
+
+
+        //BESTIMMUNG DER ORIENTIERUNGSACHSE DURCH DIE HAUPTTRÄGHEITSAHCSEN
+        gp_Dir mainAxis;
+        gp_Dir midAxis;
+        gp_Dir minAxis;
+        double länge;
+        double durchmesser1;
+        double durchmesser2;
+        double eps = 2.0;
+        gp_Dir firstAxis = GetPrincipalInertiaAxes(centeredShape)[0];
+        gp_Dir secondAxis = GetPrincipalInertiaAxes(centeredShape)[1];
+        gp_Dir thirdAxis = GetPrincipalInertiaAxes(centeredShape)[2];
+        gp_Dir xAxis(1.0, 0.0, 0.0);
+        gp_Dir yAxis(0.0, 1.0, 0.0);
+        gp_Dir zAxis(0.0, 0.0, 1.0);
+        double firstLength = bauteilInfo.xDimension;
+        double secondLength = bauteilInfo.yDimension;
+        double thirdLength = bauteilInfo.zDimension;
+
+        std::cout << "Länge1: " << firstLength << "    Länge2: " << secondLength << "    Länge3: " << thirdLength << std::endl;
+
+        if (std::fabs(firstLength - secondLength) < eps && std::fabs(secondLength - thirdLength) < eps) {
+            mainAxis = firstAxis;
+            midAxis = secondAxis;
+            minAxis = thirdAxis;
+            std::cout << "all drei gleich ähnlich" << std::endl;
+            länge = bauteilInfo.xDimension;
+            durchmesser1 = bauteilInfo.yDimension;
+            durchmesser2 = bauteilInfo.zDimension;
+        }
+        else {
+            if (std::fabs(firstLength - secondLength) < eps) {
+                mainAxis = zAxis;
+                midAxis = xAxis;
+                minAxis = yAxis;
+                std::cout << "first & second gleich ähnlich" << std::endl;
+                länge = bauteilInfo.zDimension;
+                durchmesser1 = bauteilInfo.xDimension;
+                durchmesser2 = bauteilInfo.yDimension;
+            }
+            else if (std::fabs(firstLength - thirdLength) < eps) {
+                mainAxis = yAxis;
+                midAxis = xAxis;
+                minAxis = zAxis;
+                std::cout << "first & third gleich ähnlich" << std::endl;
+                länge = bauteilInfo.yDimension;
+                durchmesser1 = bauteilInfo.xDimension;
+                durchmesser2 = bauteilInfo.zDimension;
+            }
+            else if (std::fabs(secondLength - thirdLength) < eps) {
+                mainAxis = xAxis;
+                midAxis = yAxis;
+                minAxis = zAxis;
+                std::cout << "second & third gleich ähnlich" << std::endl;
+                länge = bauteilInfo.xDimension;
+                durchmesser1 = bauteilInfo.yDimension;
+                durchmesser2 = bauteilInfo.zDimension;
+            }
+            else {
+                mainAxis = firstAxis;
+                midAxis = secondAxis;
+                minAxis = thirdAxis;
+                std::cout << "undefined scenario => alle gleich ähnlich gleich ähnlich" << std::endl;
+                länge = bauteilInfo.xDimension;
+                durchmesser1 = bauteilInfo.yDimension;
+                durchmesser2 = bauteilInfo.zDimension;
+            }
+        }
+        /*länge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
+        durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
+        durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);*/
+        std::cout << "Länge: " <<länge << "    durchmesser 1: " << durchmesser1 << "    durchmesser 2: " << durchmesser2 << std::endl;
+
+
         gp_Pnt anfPunkt = centerBox.Translated(mainAxis.XYZ() * ((länge * 0.5) - 0.1));
         gp_Pnt endPunkt = centerBox.Translated(mainAxis.XYZ() * ((-länge * 0.5) + 0.1));
 
@@ -723,7 +794,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines5) {
+        for (const auto& line : samplingLines6) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
@@ -760,9 +831,9 @@ private: void PerformAnalysis() {
 
         System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
         sc->AppendLine(" MSP (" + bauteilInfo.centerMass.X().ToString("F1") + "/" + bauteilInfo.centerMass.Y().ToString("F1") + "/" + bauteilInfo.centerMass.Z().ToString("F1") + ")");
-        sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
-        sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
-        sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");
+        sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F1") + "/" + mainAxis.Y().ToString("F1") + "/" + mainAxis.Z().ToString("F1") + ")");
+        sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F1") + "/" + midAxis.Y().ToString("F1") + "/" + midAxis.Z().ToString("F1") + ")");
+        sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F1") + "/" + minAxis.Y().ToString("F1") + "/" + minAxis.Z().ToString("F1") + ")");
         textBox5->Text = sc->ToString();
 
 

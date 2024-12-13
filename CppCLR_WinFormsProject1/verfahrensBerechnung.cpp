@@ -36,7 +36,7 @@ double calcDrehen(double D1, double D2, int tol, double rotSym, double profil, d
 
 	double finalScore = 0.0;
 	double durchmesser = (D1 + D2) / 2;
-	double dRatio = (D1/D1);
+	double dRatio = (std::min(D1, D2))/(std::max(D1, D2));
 
 	// KO Kriterien
 	if (dRatio < 0.9 || durchmesser > 900 || zwKrum > 0.7 || othKrum > 0.7 || planar > 0.5 || einKrum < 0.2 || tol > 3 || innen > 0.98) {
@@ -123,7 +123,7 @@ double calcRohrLaserTeil (double D1, double D2, int tol, double sym, double rotS
 
 	double finalScore = 0.0;
 	double durchmesser = (D1+D2)/2;
-	double dRatio = (D1 / D1);
+	double dRatio = (std::min(D1, D2)) / (std::max(D1, D2));
 	double allgemeineSym = 0.0;
 
 	// KO Kriterien

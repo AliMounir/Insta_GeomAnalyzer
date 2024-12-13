@@ -1127,7 +1127,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
 
             // Wenn es Schnittpunkte gibt, erhöhe den Zähler
             if (!intersectionPoints.empty()) {
-                linesWithIntersections += 1.15;
+                linesWithIntersections += 1.5;
             }
             std::cout << "Sampling-Linie " << i + 1 << ": ";
             if (!intersectionPoints.empty()) {
