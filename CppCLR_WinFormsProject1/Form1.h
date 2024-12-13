@@ -707,7 +707,7 @@ private: void PerformAnalysis() {
 
         std::vector<gp_Pnt> visitedPoints;
         int numRecursion = 0;
-        double innenStruktur = checkHohlraum(centeredShape, samplingAmount*2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, numRecursion);
+        double innenStruktur = checkHohlraum(centeredShape, mainAxis, samplingAmount*2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, numRecursion);
         //double innenStruktur = 0.0;
         //double resultaw = testRec();
 

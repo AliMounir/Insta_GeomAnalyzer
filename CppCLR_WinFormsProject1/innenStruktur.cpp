@@ -70,7 +70,7 @@ std::vector<gp_Pnt> ComputeIntersectionPointsss(const TopoDS_Shape& shape, const
 
 
 
-std::vector<gp_Lin> CreateSunRays(const gp_Pnt& origin, int numSamplings) {
+std::vector<gp_Lin> CreateSunRays(const gp_Pnt& origin, int numSamplings, gp_Dir xDir) {
     std::vector<gp_Lin> sunRays;
 
     // Erzeuge gleichm‰ﬂig verteilte Richtungen auf der Einheitssph‰re
@@ -93,13 +93,17 @@ std::vector<gp_Lin> CreateSunRays(const gp_Pnt& origin, int numSamplings) {
         }
     }
 
+    gp_Lin xLine(origin, xDir);
+    sunRays.push_back(xLine);
+
+
     return sunRays;
 }
 
 
 
 
-double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& startPoint, std::vector<gp_Pnt>& visitedPoints, std::vector<gp_Lin>& samplingLines, int recursionDepth) {
+double checkHohlraum(const TopoDS_Shape& shape, gp_Dir hauptDir, int numSamplings, const gp_Pnt& startPoint, std::vector<gp_Pnt>& visitedPoints, std::vector<gp_Lin>& samplingLines, int recursionDepth) {
     
     
     //int maxRecursionDepth = 6;
@@ -128,7 +132,7 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
 
 
     // Erstelle die Sampling-Linien ("Sonne")
-    std::vector<gp_Lin> sunRays = CreateSunRays(startPoint, numSamplings);
+    std::vector<gp_Lin> sunRays = CreateSunRays(startPoint, numSamplings, hauptDir);
 
     int lineIndex = 0;
     double totalScore = 0.0;
@@ -191,7 +195,7 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
 
                 // Rekursiver Aufruf
                 std::cout << "About to call checkHohlraum again with recursionDepth=" << recursionDepth << std::endl;
-                double innerScore = checkHohlraum(shape, numSamplings, midPoint, visitedPoints, samplingLines, recursionDepth);
+                double innerScore = checkHohlraum(shape, hauptDir, numSamplings, midPoint, visitedPoints, samplingLines, recursionDepth);
                 std::cout << "called checkHohlraum with recursionDepth=" << recursionDepth << " and innerscore " << innerScore << std::endl;
                 totalScore += innerScore;
                 validLines++;
@@ -220,7 +224,7 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
 
                 // Rekursiver Aufruf
                 std::cout << "About to call checkHohlraum again with recursionDepth=" << recursionDepth << std::endl;
-                double innerScore = checkHohlraum(shape, numSamplings, midPoint, visitedPoints, samplingLines, recursionDepth);
+                double innerScore = checkHohlraum(shape, hauptDir, numSamplings, midPoint, visitedPoints, samplingLines, recursionDepth);
                 std::cout << "called checkHohlraum with recursionDepth=" << recursionDepth << " and innerscore "<< innerScore << std::endl;
                 totalScore += innerScore;
                 validLines++;
