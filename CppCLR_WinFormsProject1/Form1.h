@@ -627,8 +627,10 @@ private: void PerformAnalysis() {
         
 
         std::vector<gp_Pnt> visitedPoints;
-        double innenStruktur = checkHohlraum(centeredShape, samplingAmount * 2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, 0);
-        
+        int numRecursion = 0;
+        double innenStruktur = checkHohlraum(centeredShape, samplingAmount*2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, numRecursion);
+        //double innenStruktur = 0.0;
+        //double resultaw = testRec();
 
         double biegeScore = 0.0;
 
@@ -713,7 +715,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines6) {
+        for (const auto& line : samplingLines4) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);

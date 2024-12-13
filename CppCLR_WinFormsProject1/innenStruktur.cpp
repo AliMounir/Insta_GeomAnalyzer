@@ -31,6 +31,7 @@ bool IsPointInsideShape(const TopoDS_Shape& shape, const gp_Pnt& point) {
 
 std::vector<gp_Pnt> ComputeIntersectionPointsss(const TopoDS_Shape& shape, const gp_Lin& line) {
     std::vector<gp_Pnt> points;
+    std::vector<gp_Pnt> filteredPoints;
 
     // Create an intersector
     IntCurvesFace_ShapeIntersector intersector;
@@ -48,11 +49,23 @@ std::vector<gp_Pnt> ComputeIntersectionPointsss(const TopoDS_Shape& shape, const
         for (int i = 1; i <= intersector.NbPnt(); ++i) {
             gp_Pnt pnt = intersector.Pnt(i);
             points.push_back(pnt);
-            //std::cout << "Schnittpunkt gefunden: (" << pnt.X() << ", " << pnt.Y() << ", " << pnt.Z() << ")" << std::endl;
         }
     }
 
-    return points;
+    for (const auto& p : points) {
+        bool isDuplicate = false;
+        for (const auto& fp : filteredPoints) {
+            if (p.Distance(fp) < 0.05) {
+                bool isDuplicate = true;
+                break;
+            }
+        }
+        if (!isDuplicate) {
+            filteredPoints.push_back(p);
+        }
+    }
+
+    return filteredPoints;
 }
 
 
@@ -86,29 +99,29 @@ std::vector<gp_Lin> CreateSunRays(const gp_Pnt& origin, int numSamplings) {
 
 
 
-double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& startPoint, std::vector<gp_Pnt>& visitedPoints, std::vector<gp_Lin>& samplingLines, int recursionDepth = 0) {
+double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& startPoint, std::vector<gp_Pnt>& visitedPoints, std::vector<gp_Lin>& samplingLines, int recursionDepth) {
     
     
-    const int maxRecursionDepth = 8;
-    if (recursionDepth > maxRecursionDepth) {
+    //int maxRecursionDepth = 6;
+    if (recursionDepth > 2) {
+        std::cout << "REKURSION LIMIT ERREICHT" << std::endl;
         return 1.0;
     }
     recursionDepth++;
+
     // Überprüfe, ob der Startpunkt bereits besucht wurde, um Zyklen zu vermeiden
     //std::map isElement() sollte schneller!
     for (const auto& p : visitedPoints) {
-        if (startPoint.IsEqual(p, Precision::Confusion())) {
-            // Punkt wurde bereits besucht
-            recursionDepth--;
+        if (startPoint.IsEqual(p, 0.01)) {
+            std::cout << "Punkt: (" << startPoint.X() << "/" << startPoint.Y() << "/" << startPoint.Z() << ")  wurde bereits besucht" << std::endl;
             return 0.0;
         }
     }
-
-    // Füge den aktuellen Startpunkt zur Liste der besuchten Punkte hinzu
     visitedPoints.push_back(startPoint);
 
     // Überprüfe, ob der Startpunkt innerhalb des Bauteils liegt
     bool isInside = IsPointInsideShape(shape, startPoint);
+    //bool isInside = true;
     
     std::string insideOutside = isInside ? "innerhalb" : "außerhalb";
     std::cout << "Untersuchungspunkt " << recursionDepth << ": (" << startPoint.X() << ", " << startPoint.Y() << ", " << startPoint.Z() << ") " << "liegt " << insideOutside << " des Bauteils." << std::endl;
@@ -127,8 +140,18 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
     for (const auto& line : sunRays) {
         lineIndex++;
         samplingLines.push_back(line);
-        // Berechne die Schnittpunkte
         std::vector<gp_Pnt> intersectionPoints = ComputeIntersectionPointsss(shape, line);
+        /*std::vector<gp_Pnt> intersectionPoints;
+        intersectionPoints.push_back(gp_Pnt(0.0, 0.0, 0.0));
+        intersectionPoints.push_back(gp_Pnt(1.0, 1.0, 1.0));
+        intersectionPoints.push_back(gp_Pnt(0.0, 0.0, 1.0));
+        intersectionPoints.push_back(gp_Pnt(0.0, 1.0, 0.0));
+        intersectionPoints.push_back(gp_Pnt(1.0, 0.0, 0.0));
+        intersectionPoints.push_back(gp_Pnt(0.0, 2.0, 0.0));
+        intersectionPoints.push_back(gp_Pnt(0.0, 0.0, 2.0));
+        intersectionPoints.push_back(gp_Pnt(2.0, 0.0, 0.0));
+        intersectionPoints.push_back(gp_Pnt(0.0, 3.0, 0.0));
+        intersectionPoints.push_back(gp_Pnt(0.0, 5.0, 0.0));*/
 
         // Sortiere die Schnittpunkte nach Distanz vom Startpunkt
         std::sort(intersectionPoints.begin(), intersectionPoints.end(),
@@ -137,7 +160,7 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
             });
 
         int numIntersections = static_cast<int>(intersectionPoints.size());
-        std::cout << "Sampling-Linie " << lineIndex << ": " << numIntersections << " Schnittpunkte gefunden." << std::endl;
+        std::cout << " @" << recursionDepth << " Sampling-Linie " << lineIndex << ": " << numIntersections << " Schnittpunkte gefunden." << std::endl;
 
         if (numIntersections == 0) {
             noIntersectCount++;
@@ -167,7 +190,9 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
                 gp_Pnt midPoint((firstPoint.XYZ() + secondPoint.XYZ()) * 0.5);
 
                 // Rekursiver Aufruf
-                double innerScore = checkHohlraum(shape, numSamplings, midPoint, visitedPoints, samplingLines);
+                std::cout << "About to call checkHohlraum again with recursionDepth=" << recursionDepth << std::endl;
+                double innerScore = checkHohlraum(shape, numSamplings, midPoint, visitedPoints, samplingLines, recursionDepth);
+                std::cout << "called checkHohlraum with recursionDepth=" << recursionDepth << " and innerscore " << innerScore << std::endl;
                 totalScore += innerScore;
                 validLines++;
             }
@@ -194,7 +219,9 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
                 gp_Pnt midPoint((secondPoint.XYZ() + thirdPoint.XYZ()) * 0.5);
 
                 // Rekursiver Aufruf
-                double innerScore = checkHohlraum(shape, numSamplings, midPoint, visitedPoints, samplingLines);
+                std::cout << "About to call checkHohlraum again with recursionDepth=" << recursionDepth << std::endl;
+                double innerScore = checkHohlraum(shape, numSamplings, midPoint, visitedPoints, samplingLines, recursionDepth);
+                std::cout << "called checkHohlraum with recursionDepth=" << recursionDepth << " and innerscore "<< innerScore << std::endl;
                 totalScore += innerScore;
                 validLines++;
             }
@@ -221,4 +248,12 @@ double checkHohlraum(const TopoDS_Shape& shape, int numSamplings, const gp_Pnt& 
     // Durchschnittlichen Score berechnen
     double averageScore = totalScore / validLines;
     return averageScore;
+}
+
+
+
+double testRec(int depth = 0) {
+    if (depth > 2) return 1.0;
+    depth++;
+    return testRec(depth);
 }
