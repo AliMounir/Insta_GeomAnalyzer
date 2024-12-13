@@ -203,12 +203,12 @@ namespace CppCLRWinFormsProject {
             this->textBox5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.125F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
             this->textBox5->ForeColor = System::Drawing::SystemColors::Window;
-            this->textBox5->Location = System::Drawing::Point(953, 474);
+            this->textBox5->Location = System::Drawing::Point(938, 474);
             this->textBox5->Margin = System::Windows::Forms::Padding(2);
             this->textBox5->Multiline = true;
             this->textBox5->Name = L"textBox5";
             this->textBox5->ReadOnly = true;
-            this->textBox5->Size = System::Drawing::Size(93, 63);
+            this->textBox5->Size = System::Drawing::Size(108, 63);
             this->textBox5->TabIndex = 3;
             this->textBox5->TabStop = false;
             this->textBox5->Text = L" MSP (00,00,00)\r\n HA1 (0/0/0)\r\n HA2 (0/0/0)\r\n HA3 (0/0/0)";
@@ -583,6 +583,8 @@ private: void PerformAnalysis() {
         TopoDS_Shape centeredShape = CenterShape(importedShape);
         GeomInfo bauteilInfo = getBasicInfo(centeredShape);
 
+        gp_Pnt centerMass = bauteilInfo.centerMass;
+        gp_Pnt centerBox = bauteilInfo.centerGeom;
         double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
         double largestDimension = std::max({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
         gp_Dir mainAxis = GetPrincipalInertiaAxes(centeredShape)[0];
@@ -591,6 +593,8 @@ private: void PerformAnalysis() {
         double länge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
         double durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
         double durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);
+        gp_Pnt anfPunkt = centerBox.Translated(mainAxis.XYZ() * ((länge * 0.5) - 0.1));
+        gp_Pnt endPunkt = centerBox.Translated(mainAxis.XYZ() * ((-länge * 0.5) + 0.1));
 
         double parallelitätGroßFlächen = FindLargestFacesAndCheckParallel(centeredShape);
         
@@ -603,7 +607,11 @@ private: void PerformAnalysis() {
         double symmetrieMid = CheckLinSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 2, samplingLines2);
         double symmetrieMin = CheckLinSymmetry(centeredShape, mainAxis, minAxis, samplingAmount * 2, samplingLines3);
         double gesamtSymmetrie = (symmetrieMin + symmetrieMid) / 2;
-        double rotSym = CheckRotSymmetry(centeredShape, mainAxis, midAxis, samplingAmount, samplingLines4);
+        double rotSymA = CheckRotSymmetry(centeredShape, mainAxis, midAxis, anfPunkt, samplingAmount, samplingLines4);
+        double rotSymB = CheckRotSymmetry(centeredShape, mainAxis, midAxis, centerBox, samplingAmount, samplingLines4);
+        double rotSymC = CheckRotSymmetry(centeredShape, mainAxis, midAxis, endPunkt, samplingAmount, samplingLines4);
+        double rotSymGes = (rotSymA + rotSymB + rotSymC) / 3;
+        
         
 
         double wandStaerke = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[0];
@@ -639,8 +647,8 @@ private: void PerformAnalysis() {
 
         //Verfahrensberechnungen
         double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
-        double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSym, profileScore, bauteilInfo.volumeRatio, innenStruktur, zweifachKrümmungsAnteil, einfachKrümmungsAnteil, andererAnteil, planarAnteil);
-        double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSym, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
+        double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSymGes, profileScore, bauteilInfo.volumeRatio, innenStruktur, zweifachKrümmungsAnteil, einfachKrümmungsAnteil, andererAnteil, planarAnteil);
+        double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSymGes, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
         double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
         double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
         double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
@@ -663,7 +671,7 @@ private: void PerformAnalysis() {
         sb->AppendLine(" x-Symmetrie (2.HTA): " + (symmetrieMid * 100).ToString("F2") + "%");
         sb->AppendLine(" y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
         sb->AppendLine(" Ø Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
-        sb->AppendLine(" Rotationssymmetrie: " + (rotSym * 100).ToString("F2") + "%");
+        sb->AppendLine(" Rotationssymmetrie: " + (rotSymGes * 100).ToString("F2") + "%");
         sb->AppendLine(" Wandstärke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent * 100).ToString("F2") + "%)");
         sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
@@ -715,7 +723,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines4) {
+        for (const auto& line : samplingLines5) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
@@ -751,7 +759,7 @@ private: void PerformAnalysis() {
         textBox4->Text = sa->ToString();
 
         System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
-        sc->AppendLine(" SP (" + bauteilInfo.center.X().ToString("F1") + "/" + bauteilInfo.center.Y().ToString("F1") + "/" + bauteilInfo.center.Z().ToString("F1") + ")");
+        sc->AppendLine(" MSP (" + bauteilInfo.centerMass.X().ToString("F1") + "/" + bauteilInfo.centerMass.Y().ToString("F1") + "/" + bauteilInfo.centerMass.Z().ToString("F1") + ")");
         sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F0") + "/" + mainAxis.Y().ToString("F0") + "/" + mainAxis.Z().ToString("F0") + ")");
         sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F0") + "/" + midAxis.Y().ToString("F0") + "/" + midAxis.Z().ToString("F0") + ")");
         sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F0") + "/" + minAxis.Y().ToString("F0") + "/" + minAxis.Z().ToString("F0") + ")");

@@ -27,7 +27,7 @@ std::vector<gp_Dir> GetPrincipalInertiaAxes(const TopoDS_Shape& shape);
 
 
 double CheckLinSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirection, const gp_Dir& secondaryAxisDirection, int numSamplings, std::vector<gp_Lin>& samplingLines);
-double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirection, const gp_Dir& perpAxisDirection, int numSamplings, std::vector<gp_Lin>& samplingLines);
+double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirection, const gp_Dir& perpAxisDirection, gp_Pnt originPoint, int numSamplings, std::vector<gp_Lin>& samplingLines);
 
 
 

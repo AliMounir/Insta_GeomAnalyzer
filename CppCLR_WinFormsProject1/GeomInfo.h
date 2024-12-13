@@ -8,7 +8,8 @@
 struct GeomInfo {
     double surfaceArea;
     double volume;
-    gp_Pnt center;
+    gp_Pnt centerMass;
+    gp_Pnt centerGeom;
     double xDimension;
     double yDimension;
     double zDimension;

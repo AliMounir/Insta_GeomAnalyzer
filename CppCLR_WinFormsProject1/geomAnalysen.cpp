@@ -434,13 +434,8 @@ double CheckLinSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
 
 
 
-double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirection, const gp_Dir& perpAxisDirection, int numSamplings, std::vector<gp_Lin>& samplingLines) {
+double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirection, const gp_Dir& perpAxisDirection, gp_Pnt originPoint, int numSamplings, std::vector<gp_Lin>& samplingLines) {
     try {
-        // Schritt 1: Berechne das Zentrum der Masse als Ursprungspunkt
-        GProp_GProps shapeProps;
-        BRepGProp::VolumeProperties(shape, shapeProps);
-        gp_Pnt origin = shapeProps.CentreOfMass();
-
         // Schritt 2: Bestimme einen Anfangsvektor, der senkrecht zur Hauptachse ist
         gp_Dir initialDir = perpAxisDirection;
 
@@ -452,11 +447,11 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
             double angle = i * angleIncrement;
 
             // Rotiere initialDir um die Hauptachse
-            gp_Ax1 rotationAxis(origin, mainAxisDirection);
+            gp_Ax1 rotationAxis(originPoint, mainAxisDirection);
             gp_Dir rotatedDir = initialDir.Rotated(rotationAxis, angle);
 
             // Erstelle die Sampling-Linie
-            gp_Lin samplingLine(origin, rotatedDir);
+            gp_Lin samplingLine(originPoint, rotatedDir);
             samplingLines.push_back(samplingLine);
 
             // Schnittberechnung
@@ -1132,7 +1127,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
 
             // Wenn es Schnittpunkte gibt, erhöhe den Zähler
             if (!intersectionPoints.empty()) {
-                linesWithIntersections += 1.3;
+                linesWithIntersections += 1.15;
             }
             std::cout << "Sampling-Linie " << i + 1 << ": ";
             if (!intersectionPoints.empty()) {

@@ -30,7 +30,7 @@ GeomInfo getBasicInfo(const TopoDS_Shape& shape) {
     GProp_GProps volumeProps;
     BRepGProp::VolumeProperties(shape, volumeProps);
     info.volume = volumeProps.Mass();
-    info.center = volumeProps.CentreOfMass();
+    info.centerMass = volumeProps.CentreOfMass();
 
     // Berechnung der Bounding Box für die Abmaße
     Bnd_Box boundingBox;
@@ -38,6 +38,8 @@ GeomInfo getBasicInfo(const TopoDS_Shape& shape) {
 
     Standard_Real xmin, ymin, zmin, xmax, ymax, zmax;
     boundingBox.Get(xmin, ymin, zmin, xmax, ymax, zmax);
+
+    info.centerGeom = gp_Pnt((xmin + xmax) * 0.5, (ymin + ymax) * 0.5, (zmin + zmax) * 0.5);
 
     info.xDimension = xmax - xmin;
     info.yDimension = ymax - ymin;
