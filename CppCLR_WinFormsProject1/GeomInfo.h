@@ -30,7 +30,7 @@ struct BiegeInfo {
     double BiegeProbability;
     double Radius;
     double Winkel;
-    double Lange;
+    double Laenge;
     double Schenkellange;
 };
 

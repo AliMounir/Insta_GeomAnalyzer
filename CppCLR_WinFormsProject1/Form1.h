@@ -711,6 +711,9 @@ private: void PerformAnalysis() {
         
         KurvenInfo curvInfo = checkCurvePercentage(centeredShape);
 
+
+        BiegeInfo biegInfo = checkBiegung(centeredShape);
+
         
 
         std::vector<gp_Pnt> visitedPoints;
@@ -744,27 +747,26 @@ private: void PerformAnalysis() {
         sb->AppendLine(" Volumen: " + bauteilInfo.volume.ToString("F2") + " mm³");
         sb->AppendLine(" Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm³  (" + (bauteilInfo.volumeRatio * 100).ToString("F2") + "%)");
         sb->AppendLine(" Konturumfang: " + umfang.ToString("F2") + " mm");
-        sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
-        sb->AppendLine(" ");
         sb->AppendLine(" Parallelität (Hauptflächen): " + (parallelitätGroßFlächen).ToString("F1"));
         sb->AppendLine(" x-Symmetrie (2.HTA): " + (symmetrieMid * 100).ToString("F2") + "%");
         sb->AppendLine(" y-Symmetrie (3.HTA): " + (symmetrieMin * 100).ToString("F2") + "%");
         sb->AppendLine(" Ø Spiegelsymmetrie: " + (gesamtSymmetrie * 100).ToString("F2") + "%");
         sb->AppendLine(" Rotationssymmetrie: " + (rotSymGes * 100).ToString("F2") + "%");
         sb->AppendLine(" Wandstärke: " + wandStaerke.ToString("F2") + "mm  (" + (wandPercent * 100).ToString("F2") + "%)");
-        sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
-        sb->AppendLine(" ");
         sb->AppendLine(" Profilerkennung: " + (profileScore * 100).ToString("F2") + "%");
         sb->AppendLine(" Planare Flächen: " + (curvInfo.planarAnteil * 100).ToString("F2") + "%");
         sb->AppendLine(" 1x-Gekrümmte Flächen: " + (curvInfo.einfKurvAnteil * 100).ToString("F2") + "%");
         sb->AppendLine(" 2x-Gekrümmte Flächen: " + (curvInfo.zwfKurvAnteil * 100).ToString("F2") + "%");
         sb->AppendLine(" Andere Flächenanteile: " + (curvInfo.andAnteil * 100).ToString("F2") + "%");
-        sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
-        sb->AppendLine(" ");
-        sb->AppendLine(" Biegungen: " + (biegeScore * 100).ToString("F2") + "%");
+        sb->AppendLine(" Anzahl pot. Biegungen: " + biegInfo.potentialBiegungen.ToString());
+        sb->AppendLine(" Biegewahrscheinlichkeit: " + (biegInfo.BiegeProbability * 100).ToString("F2") + "%");
+        sb->AppendLine(" Biegeradius R: " + biegInfo.Radius.ToString("F2") + " mm");
+        sb->AppendLine(" Biegewinkel v: " + biegInfo.Winkel.ToString("F1") + "°");
+        sb->AppendLine(" Biegelänge L: " + biegInfo.Laenge.ToString("F2") + " mm");
+        sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" int. Geschlossenheit: " + (innenStruktur * 100).ToString("F2") + "%");
         textBox3->Text = sb->ToString();
         
