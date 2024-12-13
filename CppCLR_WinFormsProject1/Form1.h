@@ -830,10 +830,10 @@ private: void PerformAnalysis() {
         textBox4->Text = sa->ToString();
 
         System::Text::StringBuilder^ sc = gcnew System::Text::StringBuilder();
-        sc->AppendLine(" MSP (" + bauteilInfo.centerMass.X().ToString("F1") + "/" + bauteilInfo.centerMass.Y().ToString("F1") + "/" + bauteilInfo.centerMass.Z().ToString("F1") + ")");
-        sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F1") + "/" + mainAxis.Y().ToString("F1") + "/" + mainAxis.Z().ToString("F1") + ")");
-        sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F1") + "/" + midAxis.Y().ToString("F1") + "/" + midAxis.Z().ToString("F1") + ")");
-        sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F1") + "/" + minAxis.Y().ToString("F1") + "/" + minAxis.Z().ToString("F1") + ")");
+        sc->AppendLine(" MSP (" + bauteilInfo.centerMass.X().ToString("F1") + "/" + bauteilInfo.centerMass.Y().ToString("F1") + "/" + bauteilInfo.centerMass.Z().ToString("F1") + ")  ");
+        sc->AppendLine(" 1.HTA (" + mainAxis.X().ToString("F1") + "/" + mainAxis.Y().ToString("F1") + "/" + mainAxis.Z().ToString("F1") + ")  ");
+        sc->AppendLine(" 2.HTA (" + midAxis.X().ToString("F1") + "/" + midAxis.Y().ToString("F1") + "/" + midAxis.Z().ToString("F1") + ")  ");
+        sc->AppendLine(" 3.HTA (" + minAxis.X().ToString("F1") + "/" + minAxis.Y().ToString("F1") + "/" + minAxis.Z().ToString("F1") + ")  ");
         textBox5->Text = sc->ToString();
 
 

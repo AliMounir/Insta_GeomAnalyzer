@@ -773,6 +773,7 @@ double FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape) {
 //KRÜMMUNGS UND KURVEN BERECHNUNG
 
 std::vector<double> checkCurvePercentage(const TopoDS_Shape& shape) {
+    std::cout << "Beginn KURVENERKENNUNG..." << std::endl;
     std::vector<double> curvaturePercentages;
     // Get all faces with their areas
     std::vector<FaceArea> facesWithArea = GetFacesWithArea(shape);
@@ -1007,6 +1008,7 @@ double CompareProfiles(const TopoDS_Wire& wire1, const TopoDS_Wire& wire2) {
 
 // Main function to check for profile consistency
 double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirection, int numSamplings, std::vector<gp_Lin>& samplingLines) {
+    std::cout << "Beginn PROFILERKENNUNG..." << std::endl;
     try {
         // Berechne das Zentrum der Masse als Referenzpunkt
         GProp_GProps shapeProps;
@@ -1061,6 +1063,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
         }
 
         if (frontEdges.empty()) {
+            std::cout << "Keine Stirnflächenkanten gefunden." << std::endl;
             throw std::runtime_error("Keine Stirnflächenkanten gefunden.");
         }
 
@@ -1070,6 +1073,8 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
         // Anzahl der Punkte pro Kante
         int pointsPerEdge = numSamplings / static_cast<int>(frontEdges.size());
         if (pointsPerEdge == 0) pointsPerEdge = 1;
+
+        std::cout << "frontal plane edge points found: " << pointsPerEdge << std::endl;
 
         double offsetDistance = 0.1;
 
@@ -1107,13 +1112,11 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
             }
         }
 
-        // Sammlung der Sampling-Linien
-        //std::vector<gp_Lin> samplingLines;
-
         // Erstelle für jeden Sampling-Punkt eine Linie entlang der Hauptachse
         for (const auto& point : samplingPoints) {
             gp_Lin line(point, mainAxisDirection);
             samplingLines.push_back(line);
+            std::cout << "testpunkt an stirnfläche mit offset (" << point.X() << "/" << point.Y() << "/" << point.Z() << std::endl;
         }
 
         // Berechne die Schnittpunkte und zähle die Linien, die das Bauteil schneiden
