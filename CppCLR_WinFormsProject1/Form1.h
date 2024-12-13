@@ -84,6 +84,7 @@ namespace CppCLRWinFormsProject {
     private: System::Windows::Forms::Button^ button2;
     private: System::Windows::Forms::Button^ button4;
     private: System::Windows::Forms::Button^ button3;
+    private: System::Windows::Forms::Button^ button5;
            System::ComponentModel::Container^ components;
 
 
@@ -133,6 +134,7 @@ namespace CppCLRWinFormsProject {
             this->textBox10 = (gcnew System::Windows::Forms::TextBox());
             this->button2 = (gcnew System::Windows::Forms::Button());
             this->button3 = (gcnew System::Windows::Forms::Button());
+            this->button5 = (gcnew System::Windows::Forms::Button());
             this->panel1->SuspendLayout();
             this->SuspendLayout();
             // 
@@ -284,7 +286,7 @@ namespace CppCLRWinFormsProject {
             this->textBox3->Name = L"textBox3";
             this->textBox3->ReadOnly = true;
             this->textBox3->RightToLeft = System::Windows::Forms::RightToLeft::No;
-            this->textBox3->Size = System::Drawing::Size(275, 432);
+            this->textBox3->Size = System::Drawing::Size(275, 467);
             this->textBox3->TabIndex = 2;
             this->textBox3->TabStop = false;
             this->textBox3->Text = L"--\r\n";
@@ -294,7 +296,7 @@ namespace CppCLRWinFormsProject {
             // 
             this->textBox8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 10.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
                 static_cast<System::Byte>(0)));
-            this->textBox8->Location = System::Drawing::Point(1068, 517);
+            this->textBox8->Location = System::Drawing::Point(1068, 539);
             this->textBox8->Margin = System::Windows::Forms::Padding(2);
             this->textBox8->Multiline = true;
             this->textBox8->Name = L"textBox8";
@@ -370,11 +372,29 @@ namespace CppCLRWinFormsProject {
             this->button3->Visible = false;
             this->button3->Click += gcnew System::EventHandler(this, &Form1::button3_Click);
             // 
+            // button5
+            // 
+            this->button5->FlatStyle = System::Windows::Forms::FlatStyle::Popup;
+            this->button5->Font = (gcnew System::Drawing::Font(L"Wingdings", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(2)));
+            this->button5->ForeColor = System::Drawing::Color::Navy;
+            this->button5->Location = System::Drawing::Point(842, 15);
+            this->button5->Margin = System::Windows::Forms::Padding(0);
+            this->button5->Name = L"button5";
+            this->button5->Size = System::Drawing::Size(28, 29);
+            this->button5->TabIndex = 11;
+            this->button5->TabStop = false;
+            this->button5->Text = L"ì";
+            this->button5->UseVisualStyleBackColor = true;
+            this->button5->Visible = false;
+            this->button5->Click += gcnew System::EventHandler(this, &Form1::button5_Click);
+            // 
             // Form1
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
+            this->Controls->Add(this->button5);
             this->Controls->Add(this->button3);
             this->Controls->Add(this->button2);
             this->Controls->Add(this->textBox10);
@@ -586,9 +606,9 @@ private: void PerformAnalysis() {
 
         gp_Pnt centerMass = bauteilInfo.centerMass;
         gp_Pnt centerBox = bauteilInfo.centerGeom;
-        double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.yDimension });
+        double smallestDimension = std::min({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
         double largestDimension = std::max({ bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension });
-
+        std::cout << "smallest dimension: " << smallestDimension << std::endl;
 
 
         //BESTIMMUNG DER ORIENTIERUNGSACHSE DURCH DIE HAUPTTRÄGHEITSAHCSEN
@@ -602,65 +622,46 @@ private: void PerformAnalysis() {
         gp_Dir firstAxis = GetPrincipalInertiaAxes(centeredShape)[0];
         gp_Dir secondAxis = GetPrincipalInertiaAxes(centeredShape)[1];
         gp_Dir thirdAxis = GetPrincipalInertiaAxes(centeredShape)[2];
-        gp_Dir xAxis(1.0, 0.0, 0.0);
-        gp_Dir yAxis(0.0, 1.0, 0.0);
-        gp_Dir zAxis(0.0, 0.0, 1.0);
         double firstLength = bauteilInfo.xDimension;
         double secondLength = bauteilInfo.yDimension;
         double thirdLength = bauteilInfo.zDimension;
-
         std::cout << "Länge1: " << firstLength << "    Länge2: " << secondLength << "    Länge3: " << thirdLength << std::endl;
 
-        if (std::fabs(firstLength - secondLength) < eps && std::fabs(secondLength - thirdLength) < eps) {
+        bool allSimilar = (std::fabs(firstLength - secondLength) < eps) && (std::fabs(secondLength - thirdLength) < eps);
+        bool twoSimilarAndThirdSmaller = (((std::fabs(firstLength - secondLength) < eps) && (thirdLength < firstLength)) ||
+                                         ((std::fabs(firstLength - thirdLength) < eps) && (secondLength < firstLength)) ||
+                                         ((std::fabs(secondLength - thirdLength) < eps) && (firstLength < secondLength)));
+        bool twoSimilarAndThirdLarger = (((std::fabs(firstLength - secondLength) < eps) && (thirdLength > firstLength)) ||
+                                        ((std::fabs(firstLength - thirdLength) < eps) && (secondLength > firstLength)) ||
+                                        ((std::fabs(secondLength - thirdLength) < eps) && (firstLength > secondLength)));
+        std::cout << "allSimilar: " << allSimilar << "  twoSimilarThirdSmaller: " << twoSimilarAndThirdSmaller << "  twoSimilarThirdLarger: " << twoSimilarAndThirdLarger << std::endl;
+        if (allSimilar || twoSimilarAndThirdSmaller) {
             mainAxis = firstAxis;
             midAxis = secondAxis;
             minAxis = thirdAxis;
-            std::cout << "all drei gleich ähnlich" << std::endl;
-            länge = bauteilInfo.xDimension;
-            durchmesser1 = bauteilInfo.yDimension;
-            durchmesser2 = bauteilInfo.zDimension;
+            std::cout << "Szenario A: Alle drei Dimensionen sind ähnlich oder zwei sind gleich und die dritte ist kleiner." << std::endl;
+            länge = firstLength;
+            durchmesser1 = secondLength;
+            durchmesser2 = thirdLength;
+        }
+        else if (twoSimilarAndThirdLarger) {
+            mainAxis = thirdAxis;
+            midAxis = secondAxis;
+            minAxis = firstAxis;
+            std::cout << "Szenario B: Zwei Dimensionen sind ähnlich und die dritte ist größer." << std::endl;
+            länge = thirdLength;
+            durchmesser1 = secondLength;
+            durchmesser2 = firstLength;
         }
         else {
-            if (std::fabs(firstLength - secondLength) < eps) {
-                mainAxis = zAxis;
-                midAxis = xAxis;
-                minAxis = yAxis;
-                std::cout << "first & second gleich ähnlich" << std::endl;
-                länge = bauteilInfo.zDimension;
-                durchmesser1 = bauteilInfo.xDimension;
-                durchmesser2 = bauteilInfo.yDimension;
-            }
-            else if (std::fabs(firstLength - thirdLength) < eps) {
-                mainAxis = yAxis;
-                midAxis = xAxis;
-                minAxis = zAxis;
-                std::cout << "first & third gleich ähnlich" << std::endl;
-                länge = bauteilInfo.yDimension;
-                durchmesser1 = bauteilInfo.xDimension;
-                durchmesser2 = bauteilInfo.zDimension;
-            }
-            else if (std::fabs(secondLength - thirdLength) < eps) {
-                mainAxis = xAxis;
-                midAxis = yAxis;
-                minAxis = zAxis;
-                std::cout << "second & third gleich ähnlich" << std::endl;
-                länge = bauteilInfo.xDimension;
-                durchmesser1 = bauteilInfo.yDimension;
-                durchmesser2 = bauteilInfo.zDimension;
-            }
-            else {
-                mainAxis = firstAxis;
-                midAxis = secondAxis;
-                minAxis = thirdAxis;
-                std::cout << "undefined scenario => alle gleich ähnlich gleich ähnlich" << std::endl;
-                länge = bauteilInfo.xDimension;
-                durchmesser1 = bauteilInfo.yDimension;
-                durchmesser2 = bauteilInfo.zDimension;
-            }
+            mainAxis = firstAxis;
+            midAxis = secondAxis;
+            minAxis = thirdAxis;
+            std::cout << "Szenario C: undefined/else" << std::endl;
+            länge = firstLength;
+            durchmesser1 = secondLength;
+            durchmesser2 = thirdLength;
         }
-        /*länge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
-        durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
-        durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);*/
         std::cout << "Länge: " <<länge << "    durchmesser 1: " << durchmesser1 << "    durchmesser 2: " << durchmesser2 << std::endl;
 
 
@@ -691,7 +692,13 @@ private: void PerformAnalysis() {
             samplingLines.clear();
             std::cout << "Berechnete Wandstärke ist größer als kleinstest Bauteilabmaß, wechsele Berechnung auf ThirdAxisOfInertia()." << std::endl;
             wandStaerke = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[0];
-            wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
+            wandPercent = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[1];
+        }
+        else if(wandStaerke > smallestDimension) {
+            samplingLines.clear();
+            std::cout << "Berechnete Wandstärke ist größer als kleinstest Bauteilabmaß, wechsele Berechnung auf SecondAxisOfInertia()." << std::endl;
+            wandStaerke = FindWandstarke(centeredShape, midAxis, samplingAmount, samplingLines)[0];
+            wandPercent = FindWandstarke(centeredShape, midAxis, samplingAmount, samplingLines)[1];
         }
         else {
             std::cout << "Berechnete Wandstärke besteht so!!" << std::endl;
@@ -792,7 +799,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines6) {
+        for (const auto& line : samplingLines5) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
@@ -922,6 +929,9 @@ private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e
         String^ filePath = openFileDialog->FileName;
         this->textBox1->Text = filePath;
     }
+}
+private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
+
 }
 };
 }
