@@ -16,12 +16,14 @@
 #include <IntCurvesFace_ShapeIntersector.hxx>
 #include <Bnd_Box.hxx>
 #include <GCPnts_UniformAbscissa.hxx>
+#include <GCPnts_AbscissaPoint.hxx>
 #include <ElCLib.hxx>
 
 #include <GProp_GProps.hxx>
 #include <GProp_PrincipalProps.hxx>
 #include <GeomLProp_SLProps.hxx>
 #include <Geom_Line.hxx>
+#include <Geom_Curve.hxx>
 
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
@@ -38,6 +40,7 @@
 #include <TopoDS_Compound.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopTools_ListOfShape.hxx>
+#include <TopAbs_ShapeEnum.hxx>
 
 #include <Standard_Real.hxx>
 #include <Standard_Type.hxx>
@@ -1163,6 +1166,42 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BIEGUNG
+
+double calcUmfang(const TopoDS_Shape& shape, double t) {
+    double totalLength = 0.0;
+    double eps = 0.9;
+    int edgeCount = 0;
+
+    TopExp_Explorer edgeExplorer(shape, TopAbs_EDGE);
+    for (; edgeExplorer.More(); edgeExplorer.Next()) {
+        TopoDS_Edge edge = TopoDS::Edge(edgeExplorer.Current());
+
+        edgeCount++;
+        std::cout << "Processing Edge #" << edgeCount << std::endl;
+
+        Standard_Real first, last;
+        Handle(Geom_Curve) curve = BRep_Tool::Curve(edge, first, last);
+        if (curve.IsNull()) {
+            std::cout << "Edge #" << edgeCount << " has no associated curve. Skipping..." << std::endl;
+
+            continue;
+        }
+
+        GeomAdaptor_Curve adaptorCurve(curve, first, last);
+        Standard_Real length = GCPnts_AbscissaPoint::Length(adaptorCurve);
+
+        std::cout << "Edge #" << edgeCount << ": Computed length = " << length << std::endl;
+
+
+        if ((std::min(length, t)/(std::max(length, t)) < eps)) {
+            totalLength += length;
+        }
+    }
+
+    // Da jede Kante ein counterpart auf der anderen seite hat, hier durch 2 (und dann nochmal durch 2 wegen non-uniquness beim explorer)
+    double umfang = totalLength / 4;
+    return umfang;
+}
 
 
 // BiegeInfo checkBiegung

@@ -38,4 +38,6 @@ double FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape);
 //double checkCurvePercentage(const TopoDS_Shape& shape);
 KurvenInfo checkCurvePercentage(const TopoDS_Shape& shape);
 
+double calcUmfang(const TopoDS_Shape& shape, double t);
+
 double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& axisDirection, int numSampling, std::vector<gp_Lin>& samplingLines);

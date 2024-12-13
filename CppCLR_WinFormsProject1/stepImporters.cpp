@@ -67,6 +67,9 @@ STEPInfo InspectShape(const TopoDS_Shape& shape) {
         infos.numSolids++;
     }
 
+
+    infos.numEdges = infos.numEdges / 2;
+
     std::cout << "Das Shape enthält:" << std::endl;
     std::cout << "- Vertices: " << infos.numVertices << std::endl;
     std::cout << "- Edges: " << infos.numEdges << std::endl;

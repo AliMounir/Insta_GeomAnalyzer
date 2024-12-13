@@ -704,6 +704,9 @@ private: void PerformAnalysis() {
             std::cout << "Berechnete Wandstärke besteht so!!" << std::endl;
         }
         
+        double umfang = calcUmfang(centeredShape, wandStaerke);
+
+
         double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
         
         KurvenInfo curvInfo = checkCurvePercentage(centeredShape);
@@ -740,6 +743,7 @@ private: void PerformAnalysis() {
         sb->AppendLine(" Oberfläche: " + bauteilInfo.surfaceArea.ToString("F2") + " mm²");
         sb->AppendLine(" Volumen: " + bauteilInfo.volume.ToString("F2") + " mm³");
         sb->AppendLine(" Boxvolumen: " + bauteilInfo.boxVolume.ToString("F2") + " mm³  (" + (bauteilInfo.volumeRatio * 100).ToString("F2") + "%)");
+        sb->AppendLine(" Konturumfang: " + umfang.ToString("F2") + " mm");
         sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" ");
@@ -799,7 +803,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines5) {
+        for (const auto& line : samplingLines) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
