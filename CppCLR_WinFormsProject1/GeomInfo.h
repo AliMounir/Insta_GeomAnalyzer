@@ -25,4 +25,21 @@ struct STEPInfo {
     int numSolids;
 };
 
+struct BiegeInfo {
+    int potentialBiegungen;
+    double BiegeProbability;
+    double Radius;
+    double Winkel;
+    double Lange;
+    double Schenkellange;
+};
+
+
+struct KurvenInfo {
+    double planarAnteil;
+    double einfKurvAnteil;
+    double zwfKurvAnteil;
+    double andAnteil;
+};
+
 #endif // GEOMINFO_H

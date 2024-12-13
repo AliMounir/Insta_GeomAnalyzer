@@ -54,16 +54,21 @@
 #include <numeric>
 #include <map>
 
-
 struct FaceArea {
     TopoDS_Face face;
     double area;
-    int index; // Index der Fläche
-    // Überladen des Vergleichsoperators für die Sortierung in absteigender Reihenfolge
+    int index;
     bool operator<(const FaceArea& other) const {
         return area > other.area;
     }
 };
+struct KurvenInfo {
+    double planarAnteil;
+    double einfKurvAnteil;
+    double zwfKurvAnteil;
+    double andAnteil;
+};
+
 // Helper function to get faces with their areas
 std::vector<FaceArea> GetFacesWithArea(const TopoDS_Shape& shape) {
     std::vector<FaceArea> facesWithArea;
@@ -90,12 +95,6 @@ std::vector<FaceArea> GetFacesWithArea(const TopoDS_Shape& shape) {
 
     return facesWithArea;
 }
-
-struct SymmetryResult {
-    gp_Dir axis;
-    std::string axisName;
-    double symmetryPercentage;
-};
 
 
 // Funktion zur Überprüfung, ob eine Fläche planar ist
@@ -772,9 +771,11 @@ double FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //KRÜMMUNGS UND KURVEN BERECHNUNG
 
-std::vector<double> checkCurvePercentage(const TopoDS_Shape& shape) {
+KurvenInfo checkCurvePercentage(const TopoDS_Shape& shape) {
     std::cout << "Beginn KURVENERKENNUNG..." << std::endl;
-    std::vector<double> curvaturePercentages;
+    //std::vector<double> curvaturePercentages;
+    // 
+    KurvenInfo curvInfo;
     // Get all faces with their areas
     std::vector<FaceArea> facesWithArea = GetFacesWithArea(shape);
 
@@ -835,10 +836,10 @@ std::vector<double> checkCurvePercentage(const TopoDS_Shape& shape) {
 
     }
 
-    curvaturePercentages.push_back(planarPercentage);
-    curvaturePercentages.push_back(singleCurvedPercentage);
-    curvaturePercentages.push_back(doubleCurvedPercentage);
-    curvaturePercentages.push_back(otherPercentage);
+    curvInfo.planarAnteil = planarPercentage;
+    curvInfo.einfKurvAnteil = singleCurvedPercentage;
+    curvInfo.zwfKurvAnteil = doubleCurvedPercentage;
+    curvInfo.andAnteil = otherPercentage;
 
     // Output total curvature percentage
     std::cout << "Gesamtfläche: " << totalArea << " mm²" << std::endl;
@@ -847,7 +848,7 @@ std::vector<double> checkCurvePercentage(const TopoDS_Shape& shape) {
     std::cout << "Doppelt gekrümmte Fläche: " << doubleCurvedArea << " mm² (" << doubleCurvedPercentage * 100.0 << "%)" << std::endl;
     std::cout << "Andere Fläche: " << otherArea << " mm² (" << otherPercentage * 100.0 << "%)" << std::endl;
 
-    return curvaturePercentages;
+    return curvInfo;
 }
 
 

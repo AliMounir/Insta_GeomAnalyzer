@@ -699,10 +699,8 @@ private: void PerformAnalysis() {
         
         double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
         
-        double planarAnteil = checkCurvePercentage(centeredShape)[0];
-        double einfachKrümmungsAnteil = checkCurvePercentage(centeredShape)[1];
-        double zweifachKrümmungsAnteil = checkCurvePercentage(centeredShape)[2];
-        double andererAnteil = checkCurvePercentage(centeredShape)[3];
+        KurvenInfo curvInfo = checkCurvePercentage(centeredShape);
+
         
 
         std::vector<gp_Pnt> visitedPoints;
@@ -718,10 +716,10 @@ private: void PerformAnalysis() {
 
         //Verfahrensberechnungen
         double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
-        double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSymGes, profileScore, bauteilInfo.volumeRatio, innenStruktur, zweifachKrümmungsAnteil, einfachKrümmungsAnteil, andererAnteil, planarAnteil);
+        double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSymGes, profileScore, bauteilInfo.volumeRatio, innenStruktur, curvInfo.zwfKurvAnteil, curvInfo.einfKurvAnteil, curvInfo.andAnteil, curvInfo.planarAnteil);
         double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSymGes, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
-        double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
-        double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, planarAnteil);
+        double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, curvInfo.planarAnteil);
+        double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, curvInfo.planarAnteil);
         double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
         //System::String^ prefVerfahren = "Präferrenz Verfahren";
         std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.72);
@@ -748,10 +746,10 @@ private: void PerformAnalysis() {
         sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" ");
         sb->AppendLine(" Profilerkennung: " + (profileScore * 100).ToString("F2") + "%");
-        sb->AppendLine(" Planare Flächen: " + (planarAnteil * 100).ToString("F2") + "%");
-        sb->AppendLine(" 1x-Gekrümmte Flächen: " + (einfachKrümmungsAnteil * 100).ToString("F2") + "%");
-        sb->AppendLine(" 2x-Gekrümmte Flächen: " + (zweifachKrümmungsAnteil * 100).ToString("F2") + "%");
-        sb->AppendLine(" Andere Flächenanteile: " + (andererAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" Planare Flächen: " + (curvInfo.planarAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" 1x-Gekrümmte Flächen: " + (curvInfo.einfKurvAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" 2x-Gekrümmte Flächen: " + (curvInfo.zwfKurvAnteil * 100).ToString("F2") + "%");
+        sb->AppendLine(" Andere Flächenanteile: " + (curvInfo.andAnteil * 100).ToString("F2") + "%");
         sb->AppendLine(" ");
         sb->AppendLine("----------------------------------------------------------------");
         sb->AppendLine(" ");
