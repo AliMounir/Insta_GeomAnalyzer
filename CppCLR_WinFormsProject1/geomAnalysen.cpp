@@ -744,18 +744,18 @@ std::pair<TopoDS_Face, TopoDS_Face> GetTwoLargestFaces(const TopoDS_Shape& shape
 
 
 // Main function to find the two largest faces and check if they are parallel
-double FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape) {
+std::pair<double, double> FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape) {
 
     double score = 0.0;
+    double distance = 0.0;
 
-    try {
         auto largestFaces = GetTwoLargestFaces(shape);
         TopoDS_Face face1 = largestFaces.first;
         TopoDS_Face face2 = largestFaces.second;
 
         if (!IsPlaneSurface(face1) || !IsPlaneSurface(face2)) {
             std::cout << "largest face is not planar. (for one or both)" << std::endl;
-            return score = 0.0;
+            score = 0.0;
         }
 
         if (AreFacesParallel(face1, face2)) {
@@ -770,15 +770,19 @@ double FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape) {
 
         std::cout << "Insgesamt für die Parallelität der zwei Hauptflächen: " << score * 100 << "%" << std::endl;
 
-        return score;
-    }
-    catch (const std::exception& e) {
-        // Handle any errors that occurred during processing
-        std::cerr << "Error: " << e.what() << std::endl;
-        return false;
-    }
 
-    return score;
+        BRepExtrema_DistShapeShape distTool(face1, face2);
+        distTool.Perform();
+        if (distTool.IsDone()) {
+            distance = distTool.Value();
+        }
+        else {
+            std::cerr << "Abstandsberechnung fehlgeschlagen." << std::endl;
+            distance = 0.0;
+        }
+
+
+    return std::make_pair(score, distance);
 }
 
 

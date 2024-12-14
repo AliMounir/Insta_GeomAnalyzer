@@ -70,6 +70,12 @@ double calcBlech(int tol, double parallel, double tWand, double wandPercent, dou
 	}
 
 
+	/*if (tWand % 0.25 == 0) {
+		std::cout << "K.O. KRITERIUM! " << std::endl;
+		return 0.0;
+	}*/
+
+
 	finalScore = (wandPercent + parallel + (1 - biegung) + selectedSym) / 4;
 
 	std::cout << "final score blech: " << finalScore << std::endl;
@@ -93,7 +99,7 @@ double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent
 	}
 
 
-	finalScore = (wandPercent + biegung*9 + selectedSym) / 12;
+	finalScore = (wandPercent + biegung*8 + selectedSym) / 10;
 
 	std::cout << "final score Biegeblech: " << finalScore << std::endl;
 

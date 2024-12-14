@@ -33,7 +33,7 @@ double ComputeDimensionAlongAxis(const TopoDS_Shape& shape, const gp_Dir& axis);
 
 gp_Dir ComputeFaceNormal(const TopoDS_Face& face);
 std::pair<TopoDS_Face, TopoDS_Face> GetTwoLargestFaces(const TopoDS_Shape& shape);
-double FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape);
+std::pair<double, double> FindLargestFacesAndCheckParallel(const TopoDS_Shape& shape);
 
 //double checkCurvePercentage(const TopoDS_Shape& shape);
 KurvenInfo checkCurvePercentage(const TopoDS_Shape& shape);

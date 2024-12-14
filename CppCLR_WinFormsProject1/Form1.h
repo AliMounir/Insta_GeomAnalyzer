@@ -696,7 +696,8 @@ private: void PerformAnalysis() {
         gp_Pnt anfPunkt = centerBox.Translated(mainAxis.XYZ() * ((l‰nge * 0.5) - 0.1));
         gp_Pnt endPunkt = centerBox.Translated(mainAxis.XYZ() * ((-l‰nge * 0.5) + 0.1));
 
-        double parallelit‰tGroﬂFl‰chen = FindLargestFacesAndCheckParallel(centeredShape);
+        double parallelit‰tGroﬂFl‰chen = FindLargestFacesAndCheckParallel(centeredShape).first;
+        double parallelit‰tDistance = FindLargestFacesAndCheckParallel(centeredShape).second;
         
         std::vector<gp_Lin> samplingLines;
         std::vector<gp_Lin> samplingLines2;
@@ -741,6 +742,13 @@ private: void PerformAnalysis() {
 
 
         BiegeInfo biegInfo = checkBiegung(centeredShape);
+
+
+        if (biegInfo.BiegeProbability > 0.8) {
+            std::cout << "Biegewahrscheinlichkeit sehr hoch, Wandst‰rke wird als distanz zwischen zwei grˆﬂten fl‰chen gesetzt" << std::endl;
+            wandStaerke = parallelit‰tDistance;
+            wandPercent = 1.0;
+        }
 
         
 
