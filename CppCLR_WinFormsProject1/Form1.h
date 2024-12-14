@@ -32,7 +32,7 @@
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Edge.hxx>
 #include <IFSelect_ReturnStatus.hxx>
-#include <iostream>
+#include <vector>
 #include <streambuf>
 #include <ostream>
 #include <set>
@@ -62,6 +62,8 @@ namespace CppCLRWinFormsProject {
         {
             InitializeComponent();
 
+            myHelperEdges = new std::vector<Handle(AIS_Shape)>();
+
             std::cout.setf(std::ios::unitbuf);
 
             textBoxStreamBuf = new TextBoxStreamBuf(gcnew System::Action<System::String^>(this, &Form1::AppendTextToTextBox));
@@ -76,6 +78,12 @@ namespace CppCLRWinFormsProject {
             {
                 delete components;
             }
+
+            if (myHelperEdges != nullptr)
+            {
+                delete myHelperEdges;
+                myHelperEdges = nullptr;
+            }
         }
     
     private:
@@ -85,9 +93,11 @@ namespace CppCLRWinFormsProject {
     private: System::Windows::Forms::Button^ button4;
     private: System::Windows::Forms::Button^ button3;
     private: System::Windows::Forms::Button^ button5;
+    private: System::Windows::Forms::CheckBox^ checkBox1;
            System::ComponentModel::Container^ components;
 
-
+    private:
+        std::vector<Handle(AIS_Shape)>* myHelperEdges;
 
     public:
         void AppendTextToTextBox(System::String^ text) {
@@ -120,6 +130,7 @@ namespace CppCLRWinFormsProject {
         void InitializeComponent(void)
         {
             this->panel1 = (gcnew System::Windows::Forms::Panel());
+            this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
             this->button4 = (gcnew System::Windows::Forms::Button());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
@@ -152,6 +163,22 @@ namespace CppCLRWinFormsProject {
             this->panel1->TabIndex = 0;
             this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::panel1_Paint);
             this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
+            // 
+            // checkBox1
+            // 
+            this->checkBox1->AutoSize = true;
+            this->checkBox1->BackColor = System::Drawing::SystemColors::ControlDarkDark;
+            this->checkBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
+            this->checkBox1->ForeColor = System::Drawing::SystemColors::ControlLightLight;
+            this->checkBox1->Location = System::Drawing::Point(954, 775);
+            this->checkBox1->Name = L"checkBox1";
+            this->checkBox1->Size = System::Drawing::Size(83, 19);
+            this->checkBox1->TabIndex = 11;
+            this->checkBox1->TabStop = false;
+            this->checkBox1->Text = L"Hilfslinien";
+            this->checkBox1->UseVisualStyleBackColor = false;
+            this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkBox1_CheckedChanged);
             // 
             // button4
             // 
@@ -394,6 +421,7 @@ namespace CppCLRWinFormsProject {
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
+            this->Controls->Add(this->checkBox1);
             this->Controls->Add(this->button5);
             this->Controls->Add(this->button3);
             this->Controls->Add(this->button2);
@@ -816,6 +844,7 @@ private: void PerformAnalysis() {
 
             // Display the line in the viewer
             //myAISContext->Display(aisEdge, Standard_True);
+            //myHelperEdges.push_back(aisEdge);
         }
 
         // Redisplay the viewer
@@ -934,6 +963,20 @@ private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e
 }
 private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
 
+}
+private: System::Void checkBox1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
+
+    if (checkBox1->Checked == true) {
+        for (auto& edge : *myHelperEdges) {
+            myAISContext->Display(edge, Standard_True);
+        }
+    }
+    else {
+        for (auto& edge : *myHelperEdges) {
+            myAISContext->Erase(edge, Standard_True);
+        }
+    }
+    myAISContext->UpdateCurrentViewer();
 }
 };
 }
