@@ -815,7 +815,7 @@ private: void PerformAnalysis() {
             aisEdge->SetWidth(1.0); // Optional: set the width of the line
 
             // Display the line in the viewer
-            myAISContext->Display(aisEdge, Standard_True);
+            //myAISContext->Display(aisEdge, Standard_True);
         }
 
         // Redisplay the viewer

@@ -93,7 +93,7 @@ double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent
 	}
 
 
-	finalScore = (wandPercent + biegung*8 + selectedSym) / 11;
+	finalScore = (wandPercent + biegung*9 + selectedSym) / 12;
 
 	std::cout << "final score Biegeblech: " << finalScore << std::endl;
 
