@@ -1211,7 +1211,7 @@ double calcUmfang(const TopoDS_Shape& shape, double t) {
     }
 
     // Da jede Kante ein counterpart auf der anderen seite hat, hier durch 2 (und dann nochmal durch 2 wegen non-uniquness beim explorer)
-    double umfang = totalLength / 4;
+    double umfang = totalLength / 8;
     return umfang;
 }
 
@@ -1224,9 +1224,11 @@ BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
     info.Radius = 0.0;
     info.Winkel = 0.0;
     info.Laenge = 0.0;
+    double score = 0.0;
 
     std::vector<FaceArea> faces = GetFacesWithArea(shape);
 
+    // Hilfsfunktion für Kantenlänge
     auto edgeLength = [](const TopoDS_Edge& edge) {
         Standard_Real f, l;
         Handle(Geom_Curve) curve = BRep_Tool::Curve(edge, f, l);
@@ -1234,7 +1236,6 @@ BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
             std::cout << "Edge ohne Kurve, Länge = 0.0" << std::endl;
             return 0.0;
         }
-
         GeomAdaptor_Curve adaptorCurve(curve, f, l);
         Standard_Real length = 0.0;
         try {
@@ -1248,165 +1249,152 @@ BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
         return length;
     };
 
-    bool foundSuitableSurface = false; // Ob wir bereits eine passende Zylinderfläche gefunden haben
-    // Falls mehrere gefunden werden, speichern wir nur die Werte der ersten gefundenen
+    // 1) Alle zylindrischen Flächen sammeln
+    std::vector<std::pair<TopoDS_Face, BRepAdaptor_Surface>> cylinderFaces;
     int faceIndex = 0;
     for (auto& fa : faces) {
         faceIndex++;
-        std::cout << "-------------------------------------------" << std::endl;
-        std::cout << "Untersuche Face #" << faceIndex << " mit Area: " << fa.area << std::endl;
-
-        TopoDS_Face face = fa.face;
-        BRepAdaptor_Surface surf(face, Standard_True);
-
-        if (surf.GetType() != GeomAbs_Cylinder) {
-            std::cout << "Face #" << faceIndex << " ist kein Zylinder, ignoriere." << std::endl;
-            continue;
+        BRepAdaptor_Surface surf(fa.face, Standard_True);
+        if (surf.GetType() == GeomAbs_Cylinder) {
+            // Check ob nicht voll 2π
+            Standard_Real uMin = surf.FirstUParameter();
+            Standard_Real uMax = surf.LastUParameter();
+            Standard_Real uRange = uMax - uMin;
+            double twoPi = 2.0 * M_PI;
+            // Wenn voll 2π dann ignorieren => hier aber wollen wir erst nachher filtern
+            // Also jetzt noch nicht rausfiltern, nur speichern.
+            cylinderFaces.push_back(std::make_pair(fa.face, surf));
+            std::cout << "Face #" << faceIndex << ": Ist Zylindrisch. uRange=" << uRange << std::endl;
         }
+        else {
+            std::cout << "Face #" << faceIndex << ": Nicht zylindrisch, ignoriere." << std::endl;
+        }
+    }
 
+    // 2) Geschlossene Zylinder entfernen (uRange ~ 2π)
+    std::vector<std::pair<TopoDS_Face, BRepAdaptor_Surface>> filteredCylinders;
+    for (auto& cpair : cylinderFaces) {
+        auto& face = cpair.first;
+        auto& surf = cpair.second;
         Standard_Real uMin = surf.FirstUParameter();
         Standard_Real uMax = surf.LastUParameter();
+        Standard_Real uRange = uMax - uMin;
+        if (std::fabs(uRange - (2.0 * M_PI)) < 1e-6 || std::fabs(uRange - (M_PI)) < 1e-6) {
+            std::cout << "Zylindrische Face mit vollem 2π/π Umfang gefunden, ignorieren." << std::endl;
+            continue;
+        }
+        filteredCylinders.push_back(cpair);
+    }
+
+    // Jetzt ist die Anzahl der remaining Zylindrischen Flächen unsere potentialBiegungen
+    info.potentialBiegungen = (int)filteredCylinders.size();
+    std::cout << "Anzahl potentieller Biegungen (nach Filter): " << info.potentialBiegungen << std::endl;
+    //score = score + std::max(0.0, 1.0 - 0.015 * info.potentialBiegungen);
+
+    if (filteredCylinders.empty()) {
+        std::cout << "Keine potentiellen Biegungen gefunden, Probability=0" << std::endl;
+        score = 0.0;
+        return info; // Probability=0 etc. sind schon gesetzt
+    }
+    
+    // 3) Aus den verbleibenden zylindrischen Flächen jene mit größtem Betrag von vMin oder vMax wählen
+    // Wir bestimmen für jede Face max(|vMin|,|vMax|) und wählen die größte.
+    double maxVValue = -1.0;
+    int bestIndex = -1;
+    for (int i = 0; i < (int)filteredCylinders.size(); i++) {
+        auto& surf = filteredCylinders[i].second;
         Standard_Real vMin = surf.FirstVParameter();
         Standard_Real vMax = surf.LastVParameter();
-        std::cout << "Face #" << faceIndex << " Zylinder-Parameter: uMin=" << uMin << ", uMax=" << uMax << ", vMin=" << vMin << ", vMax=" << vMax << std::endl;
-
-        Standard_Real uRange = uMax - uMin;
-        if (std::fabs(uRange - (2.0 * M_PI)) < 1e-6) {
-            std::cout << "Face #" << faceIndex << " ist ein voller Zylinder (2π), ignoriere." << std::endl;
-            continue;
+        double candidateVal = std::max(std::fabs((double)vMin), std::fabs((double)vMax));
+        std::cout << "Face " << i << ": vMin=" << vMin << ", vMax=" << vMax << ", candidateVal=" << candidateVal << std::endl;
+        if (candidateVal >= maxVValue) {
+            maxVValue = candidateVal;
+            bestIndex = i;
         }
+    }//SEHR WICHTIG HIER. candidateVal >= maxVValue wird der letzte größte Wert gewählt => innenRadius --- mit candidateVal >= maxVValue wird der erste größte Wert gewählt => außenradius
+    
+    if (bestIndex == -1) {
+        std::cout << "Konnte keine Face nach vMin/vMax-Kriterium wählen. Probability=0" << std::endl;
+        score = 0.0;
+        return info;
+    }
+    score++;
 
-        TopTools_IndexedMapOfShape wires;
-        TopExp::MapShapes(face, TopAbs_WIRE, wires);
-        if (wires.Extent() == 0) {
-            std::cout << "Face #" << faceIndex << " hat keine Wires, ignoriere." << std::endl;
-            continue;
-        }
-        TopoDS_Wire outerWire = TopoDS::Wire(wires(1));
-        if (outerWire.IsNull()) {
-            std::cout << "Face #" << faceIndex << " OuterWire ist null, ignoriere." << std::endl;
-            continue;
-        }
+    // Unsere ausgewählte Face:
+    TopoDS_Face chosenFace = filteredCylinders[bestIndex].first;
+    BRepAdaptor_Surface chosenSurf = filteredCylinders[bestIndex].second;
+    Standard_Real uMin = chosenSurf.FirstUParameter();
+    Standard_Real uMax = chosenSurf.LastUParameter();
+    Standard_Real vMin = chosenSurf.FirstVParameter();
+    Standard_Real vMax = chosenSurf.LastVParameter();
 
-        std::vector<TopoDS_Edge> edges;
-        for (TopExp_Explorer eExp(outerWire, TopAbs_EDGE); eExp.More(); eExp.Next()) {
-            edges.push_back(TopoDS::Edge(eExp.Current()));
-        }
+    // 4) Edges der chosenFace untersuchen
+    TopTools_IndexedMapOfShape wires;
+    TopExp::MapShapes(chosenFace, TopAbs_WIRE, wires);
+    if (wires.Extent() == 0) {
+        std::cout << "Gewählte Face hat keine Wires, Probability=0." << std::endl;
+        score = 0.0;
+        return info; // Probability=0
+    }
+    TopoDS_Wire outerWire = TopoDS::Wire(wires(1));
 
-        std::cout << "Face #" << faceIndex << ": Anzahl Edges in OuterWire: " << edges.size() << std::endl;
-
-        if (edges.size() != 4) {
-            std::cout << "Face #" << faceIndex << " hat nicht 4 Edges, ignoriere." << std::endl;
-            continue;
-        }
-
-        // Klassifiziere die Edges:
-        std::vector<TopoDS_Edge> straightEdges;
-        std::vector<TopoDS_Edge> curvedEdges;
-
-        for (auto& ed : edges) {
-            Standard_Real f, l;
-            Handle(Geom_Curve) curve = BRep_Tool::Curve(ed, f, l);
-            if (curve.IsNull()) {
-                std::cout << "Edge ohne Curve im Face #" << faceIndex << ", ignoriere diese Edge." << std::endl;
-                continue;
-            }
-            Handle(Geom_Line) line = Handle(Geom_Line)::DownCast(curve);
-            Handle(Geom_Circle) circle = Handle(Geom_Circle)::DownCast(curve);
-
-            if (!line.IsNull()) {
-                std::cout << "Face #" << faceIndex << ": Edge ist eine Linie." << std::endl;
-                straightEdges.push_back(ed);
-            }
-            else if (!circle.IsNull()) {
-                std::cout << "Face #" << faceIndex << ": Edge ist ein Kreisbogen." << std::endl;
-                curvedEdges.push_back(ed);
-            }
-            else {
-                std::cout << "Face #" << faceIndex << ": Edge ist weder Linie noch Kreis, ignoriere diese Face." << std::endl;
-                curvedEdges.clear();
-                break;
-            }
-        }
-
-        if (straightEdges.size() != 2 || curvedEdges.size() != 2) {
-            std::cout << "Face #" << faceIndex << ": Nicht 2 gerade und 2 gekrümmte Edges, ignoriere." << std::endl;
-            continue;
-        }
-
-
-        Standard_Real f1, l1;
-        Handle(Geom_Curve) c1 = BRep_Tool::Curve(curvedEdges[0], f1, l1);
-        Handle(Geom_Circle) circle1 = Handle(Geom_Circle)::DownCast(c1);
-        Standard_Real f2, l2;
-        Handle(Geom_Curve) c2 = BRep_Tool::Curve(curvedEdges[1], f2, l2);
-        Handle(Geom_Circle) circle2 = Handle(Geom_Circle)::DownCast(c2);
-
-        if (circle1.IsNull() || circle2.IsNull()) {
-            std::cout << "Face #" << faceIndex << ": Nicht beide gekrümmte Edges sind Kreisbögen." << std::endl;
-            continue;
-        }
-
-        double r1 = circle1->Radius();
-        double r2 = circle2->Radius();
-        if (std::fabs(r1 - r2) > 0.1) {
-            std::cout << "Face #" << faceIndex << ": Radien differieren zu stark." << std::endl;
-            continue;
-        }
-
- 
-        BRep_Tool::Curve(curvedEdges[0], f1, l1);
-        BRep_Tool::Curve(curvedEdges[1], f2, l2);
-
-        double angle1 = l1 - f1;
-        if (angle1 < 0) angle1 += 2.0 * M_PI;
-        double angle2 = l2 - f2;
-        if (angle2 < 0) angle2 += 2.0 * M_PI;
-
-        std::cout << "Face #" << faceIndex << ": angle1=" << angle1 << ", angle2=" << angle2 << std::endl;
-
-
-        if (std::fabs(angle1 - angle2) > 0.01) {
-            std::cout << "Face #" << faceIndex << ": Winkel differieren zu stark." << std::endl;
-            continue;
-        }
-
-        double finalAngle = 0.5 * (angle1 + angle2);
-        double length1 = edgeLength(straightEdges[0]);
-        double length2 = edgeLength(straightEdges[1]);
-        double averageLength = 0.5 * (length1 + length2);
-        std::cout << "Face #" << faceIndex << ": Gerade Edges Längen: " << length1 << ", " << length2 << " -> Mittel: " << averageLength << std::endl;
-
-        double finalRadius = surf.Cylinder().Radius();
-        std::cout << "Face #" << faceIndex << ": Zylinder Radius: " << finalRadius << std::endl;
-
-
-        info.potentialBiegungen += 1;
-        if (!foundSuitableSurface) {
-            info.BiegeProbability = 1.0;
-            info.Radius = finalRadius;
-            info.Winkel = finalAngle;
-            info.Laenge = averageLength;
-            foundSuitableSurface = true;
-            std::cout << "Face #" << faceIndex << ": Erste passende Zylinderfläche gefunden. BiegeProbability=1" << std::endl;
-
-        }
-        // Falls es weitere gibt, erhöhen wir nur potentialBiegungen
-        // Radius/Winkel/Laenge bleiben vom ersten Treffer.
-        std::cout << "Face #" << faceIndex << ": Weitere passende Zylinderfläche, potentialBiegungen++" << std::endl;
-
+    std::vector<TopoDS_Edge> edges;
+    for (TopExp_Explorer eExp(outerWire, TopAbs_EDGE); eExp.More(); eExp.Next()) {
+        edges.push_back(TopoDS::Edge(eExp.Current()));
     }
 
-    if (!foundSuitableSurface) {
-        std::cout << "Keine passende Zylinderfläche gefunden. BiegeProbability=0" << std::endl;
-        info.BiegeProbability = 0.0;
-        info.Radius = 0.0;
-        info.Winkel = 0.0;
-        info.Laenge = 0.0;
-        info.potentialBiegungen = 0;
+    std::cout << "Gewählte Face Edges-Anzahl: " << edges.size() << std::endl;
+    score = score + std::max(0.0, 1.0 - 0.02 * edges.size());
+
+    // Mindestens 2 gerade und mindestens 2 gekrümmte Edges
+    std::vector<TopoDS_Edge> straightEdges;
+    std::vector<TopoDS_Edge> curvedEdges;
+
+    for (auto& ed : edges) {
+        Standard_Real f, l;
+        Handle(Geom_Curve) curve = BRep_Tool::Curve(ed, f, l);
+        if (curve.IsNull()) continue;
+        Handle(Geom_Line) line = Handle(Geom_Line)::DownCast(curve);
+        Handle(Geom_Circle) circle = Handle(Geom_Circle)::DownCast(curve);
+
+        if (!line.IsNull()) {
+            straightEdges.push_back(ed);
+        }
+        else if (!circle.IsNull()) {
+            curvedEdges.push_back(ed);
+        }
     }
 
-    std::cout << "Ende von checkBiegung: potentialBiegungen=" << info.potentialBiegungen << ", BiegeProbability=" << info.BiegeProbability << ", Radius=" << info.Radius << ", Winkel=" << info.Winkel << ", Laenge=" << info.Laenge << std::endl;
+    std::cout << "Anzahl gerade Edges: " << straightEdges.size() << ", Anzahl gekrümmte Edges: " << curvedEdges.size() << std::endl;
+    if (straightEdges.size() < 2 || curvedEdges.size() < 2) {
+        std::cout << "Kriterium nicht erfüllt (mind. 2 gerade, 2 gekrümmte). Probability=0." << std::endl;
+        score = 0.0;
+        return info;
+    }
+
+    // 5) info.Laenge = max(|vMin|, |vMax|)
+    double laenge = std::max(std::fabs((double)vMin), std::fabs((double)vMax));
+
+    // 6) Winkel = (uMax - uMin) in Grad
+    double winkelRad = std::fabs((double)(uMax - uMin));
+    double winkelDeg = winkelRad * 180.0 / M_PI;
+
+    // 7) Radius = surf.Cylinder().Radius()
+    double radius = chosenSurf.Cylinder().Radius();
+
+    // Da wir mindestens eine gültige Face gefunden haben:
+    // BiegeProbability=1.0 (wir haben ja potentialBiegungen = size gefiltert)
+    info.BiegeProbability = score / 2;
+    info.Radius = radius;
+    info.Winkel = winkelDeg;
+    info.Laenge = laenge;
+
+    std::cout << "Ergebnisse:" << std::endl;
+    std::cout << "potentialBiegungen: " << info.potentialBiegungen << std::endl;
+    std::cout << "BiegeProbability: " << info.BiegeProbability << std::endl;
+    std::cout << "Radius: " << info.Radius << std::endl;
+    std::cout << "Winkel (deg): " << info.Winkel << std::endl;
+    std::cout << "Laenge: " << info.Laenge << std::endl;
 
     return info;
 }

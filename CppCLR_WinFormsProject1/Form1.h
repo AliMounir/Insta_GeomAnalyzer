@@ -405,7 +405,7 @@ namespace CppCLRWinFormsProject {
             this->Controls->Add(this->textBox2);
             this->Controls->Add(this->panel1);
             this->Name = L"Form1";
-            this->Text = L"Form1";
+            this->Text = L"BA - Bauteil Analyse & Verfahrensidentifikation";
             this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &Form1::Form1_FormClosing);
             this->Load += gcnew System::EventHandler(this, &Form1::Form1_Load);
             this->Shown += gcnew System::EventHandler(this, &Form1::Form1_Shown);
@@ -719,10 +719,6 @@ private: void PerformAnalysis() {
         std::vector<gp_Pnt> visitedPoints;
         int numRecursion = 0;
         double innenStruktur = checkHohlraum(centeredShape, mainAxis, samplingAmount*2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, numRecursion);
-        //double innenStruktur = 0.0;
-        //double resultaw = testRec();
-
-        double biegeScore = 0.0;
 
 
 
@@ -731,8 +727,8 @@ private: void PerformAnalysis() {
         double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
         double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSymGes, profileScore, bauteilInfo.volumeRatio, innenStruktur, curvInfo.zwfKurvAnteil, curvInfo.einfKurvAnteil, curvInfo.andAnteil, curvInfo.planarAnteil);
         double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSymGes, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
-        double blech2d = calcBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, curvInfo.planarAnteil);
-        double blech3d = calcBiegeBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegeScore, curvInfo.planarAnteil);
+        double blech2d = calcBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil);
+        double blech3d = calcBiegeBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil);
         double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
         //System::String^ prefVerfahren = "Pr‰ferrenz Verfahren";
         std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.72);

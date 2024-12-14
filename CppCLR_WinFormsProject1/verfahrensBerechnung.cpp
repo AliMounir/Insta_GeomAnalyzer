@@ -62,22 +62,15 @@ double calcBlech(int tol, double parallel, double tWand, double wandPercent, dou
 	std::cout << "calc Blech beginnt " << std::endl;
 
 	double finalScore = 0.0;
-	double selectedSym = 0.0;
-
+	double selectedSym = std::max(sym1, sym2);
 	// KO Kriterien
-	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || biegung > 0.2 || planar < 0.7) {
+	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || planar < 0.7) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
 
-	if (sym1 < sym2) {
-		selectedSym = sym2;
-	}
-	else {
-		selectedSym = sym1;
-	}
 
-	finalScore = (wandPercent + parallel + biegung + selectedSym) / 4;
+	finalScore = (wandPercent + parallel + (1 - biegung) + selectedSym) / 4;
 
 	std::cout << "final score blech: " << finalScore << std::endl;
 
@@ -91,7 +84,7 @@ double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent
 	std::cout << "calc Biege-Blech beginnt " << std::endl;
 
 	double finalScore = 0.0;
-	double selectedSym = 0.0;
+	double selectedSym = std::max(sym1,sym2);
 
 	// KO Kriterien
 	if (tol > 2 || innen > 0.98 || tWand > 15 || tWand < 1 || biegung < 0.2 || planar < 0.2) {
@@ -99,14 +92,8 @@ double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent
 		return 0.0;
 	}
 
-	if (sym1 < sym2) {
-		selectedSym = sym2;
-	}
-	else {
-		selectedSym = sym1;
-	}
 
-	finalScore = (wandPercent + biegung*3 + selectedSym) / 6;
+	finalScore = (wandPercent + biegung*8 + selectedSym) / 11;
 
 	std::cout << "final score Biegeblech: " << finalScore << std::endl;
 
