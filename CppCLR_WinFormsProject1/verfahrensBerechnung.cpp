@@ -64,7 +64,7 @@ double calcBlech(int tol, double parallel, double tWand, double wandPercent, dou
 	double finalScore = 0.0;
 	double selectedSym = std::max(sym1, sym2);
 	// KO Kriterien
-	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || planar < 0.7) {
+	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || planar < 0.5) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
@@ -93,7 +93,7 @@ double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent
 	double selectedSym = std::max(sym1,sym2);
 
 	// KO Kriterien
-	if (tol > 2 || innen > 0.98 || tWand > 15 || tWand < 1 || biegung < 0.2 || planar < 0.2) {
+	if (tol > 2 || innen > 0.98 || tWand > 20 || tWand < 1 || biegung < 0.2 || planar < 0.1) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
@@ -155,7 +155,11 @@ double calcAdditiv(double xDim, double yDim, double zDim, int tol, double innen)
 		return 0.0;
 	}
 
-	finalScore = (innen + 1) / 2;
+	if (innen < 0.5) {
+		innen = 1 - innen;
+	}
+
+	finalScore = (innen + 5) / 6;
 
 	std::cout << "final score additive verfahren: " << finalScore << std::endl;
 

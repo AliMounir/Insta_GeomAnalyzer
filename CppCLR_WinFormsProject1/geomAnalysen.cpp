@@ -260,7 +260,9 @@ double ComputeDistanceBetweenFaces(const TopoDS_Face& face1, const TopoDS_Face& 
 
 double FindModeValue(const std::vector<double>& values, int decimalPlaces) {
     if (values.empty()) {
-        throw std::runtime_error("The input vector is empty.");
+        std::cerr << "mode value empty" << std::endl;
+        return 0.0;
+        //throw std::runtime_error("The input vector is empty.");
     }
 
     // Multiplier for rounding
@@ -666,6 +668,11 @@ std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& main
 
     // Step 8: Find the mode value among the distances
     double modeValue = FindModeValue(minimalDistances, 2);
+
+    if (modeValue==0) {
+        modeValue = -1;
+        std::cout << "mode value konnte nicht gefunden werden: " << modeValue << std::endl;
+    }
 
     // Step 9: Compute the percentage of occurrence of the mode value
     int modeCount = 0;

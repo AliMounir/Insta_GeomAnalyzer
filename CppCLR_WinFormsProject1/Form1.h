@@ -130,13 +130,13 @@ namespace CppCLRWinFormsProject {
         void InitializeComponent(void)
         {
             this->panel1 = (gcnew System::Windows::Forms::Panel());
-            this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
             this->button4 = (gcnew System::Windows::Forms::Button());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
             this->textBox5 = (gcnew System::Windows::Forms::TextBox());
             this->textBox4 = (gcnew System::Windows::Forms::TextBox());
             this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+            this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
             this->button1 = (gcnew System::Windows::Forms::Button());
             this->textBox2 = (gcnew System::Windows::Forms::TextBox());
             this->textBox3 = (gcnew System::Windows::Forms::TextBox());
@@ -151,6 +151,7 @@ namespace CppCLRWinFormsProject {
             // 
             // panel1
             // 
+            this->panel1->Controls->Add(this->checkBox1);
             this->panel1->Controls->Add(this->button4);
             this->panel1->Controls->Add(this->textBox7);
             this->panel1->Controls->Add(this->textBox6);
@@ -163,22 +164,6 @@ namespace CppCLRWinFormsProject {
             this->panel1->TabIndex = 0;
             this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::panel1_Paint);
             this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
-            // 
-            // checkBox1
-            // 
-            this->checkBox1->AutoSize = true;
-            this->checkBox1->BackColor = System::Drawing::SystemColors::ControlDarkDark;
-            this->checkBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(0)));
-            this->checkBox1->ForeColor = System::Drawing::SystemColors::ControlLightLight;
-            this->checkBox1->Location = System::Drawing::Point(954, 775);
-            this->checkBox1->Name = L"checkBox1";
-            this->checkBox1->Size = System::Drawing::Size(83, 19);
-            this->checkBox1->TabIndex = 11;
-            this->checkBox1->TabStop = false;
-            this->checkBox1->Text = L"Hilfslinien";
-            this->checkBox1->UseVisualStyleBackColor = false;
-            this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkBox1_CheckedChanged);
             // 
             // button4
             // 
@@ -274,6 +259,22 @@ namespace CppCLRWinFormsProject {
             this->textBox1->TabIndex = 1;
             this->textBox1->TabStop = false;
             this->textBox1->Text = L"C:\\Users\\Ali Mounir\\Desktop\\TestCads\\test-platte.stp";
+            // 
+            // checkBox1
+            // 
+            this->checkBox1->AutoSize = true;
+            this->checkBox1->BackColor = System::Drawing::SystemColors::ControlDarkDark;
+            this->checkBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
+            this->checkBox1->ForeColor = System::Drawing::SystemColors::ControlLightLight;
+            this->checkBox1->Location = System::Drawing::Point(965, 450);
+            this->checkBox1->Name = L"checkBox1";
+            this->checkBox1->Size = System::Drawing::Size(83, 19);
+            this->checkBox1->TabIndex = 11;
+            this->checkBox1->TabStop = false;
+            this->checkBox1->Text = L"Hilfslinien";
+            this->checkBox1->UseVisualStyleBackColor = false;
+            this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkBox1_CheckedChanged);
             // 
             // button1
             // 
@@ -421,7 +422,6 @@ namespace CppCLRWinFormsProject {
             this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
             this->ClientSize = System::Drawing::Size(1349, 808);
-            this->Controls->Add(this->checkBox1);
             this->Controls->Add(this->button5);
             this->Controls->Add(this->button3);
             this->Controls->Add(this->button2);
@@ -744,8 +744,9 @@ private: void PerformAnalysis() {
         BiegeInfo biegInfo = checkBiegung(centeredShape);
 
 
-        if (biegInfo.BiegeProbability > 0.8) {
+        if (biegInfo.BiegeProbability > 0.8 || wandStaerke < 0) {
             std::cout << "Biegewahrscheinlichkeit sehr hoch, Wandstärke wird als distanz zwischen zwei größten flächen gesetzt" << std::endl;
+            std::cout << "ODER wandstärke konnte nicht gefunden werden modevalue -1" << std::endl;
             wandStaerke = parallelitätDistance;
             wandPercent = 1.0;
         }
