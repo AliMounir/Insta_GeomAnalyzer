@@ -18,6 +18,10 @@ double calcFraesen(int tol, double tWand, double innen, double volRatio, double 
 		return 0.0;
 	}
 
+	if (tol > 1) {
+		tol = 1;
+	}
+
 	finalScore = (volRatio + (1-innen) + (1-profil) + tol) / 4;
 
 	std::cout << "final score fräsen: " << finalScore << std::endl;
@@ -39,7 +43,7 @@ double calcDrehen(double D1, double D2, int tol, double rotSym, double profil, d
 	double dRatio = (std::min(D1, D2))/(std::max(D1, D2));
 
 	// KO Kriterien
-	if (dRatio < 0.9 || durchmesser > 900 || zwKrum > 0.7 || othKrum > 0.7 || planar > 0.5 || einKrum < 0.2 || tol > 3 || innen > 0.98) {
+	if (dRatio < 0.9 || durchmesser > 900 || zwKrum > 0.7 || othKrum > 0.8 || planar > 0.75 || einKrum < 0.2 || tol > 3 || innen > 0.98) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
@@ -57,26 +61,37 @@ double calcDrehen(double D1, double D2, int tol, double rotSym, double profil, d
 
 
 
-double calcBlech(int tol, double parallel, double tWand, double wandPercent, double sym1, double sym2, double innen, double volRatio, double biegung, double planar) {
+double calcBlech(int tol, double parallel, double tWand, double wandPercent, double sym1, double sym2, double innen, double volRatio, double biegung, double planar, double xDim, double yDim, double zDim) {
 
 	std::cout << "calc Blech beginnt " << std::endl;
 
 	double finalScore = 0.0;
 	double selectedSym = std::max(sym1, sym2);
+	double dickeV = 1.0;
+
+
+	if (std::fabs(tWand - xDim) <= 1 || std::fabs(tWand - yDim) <= 1 || std::fabs(tWand - zDim) <= 1) {
+		dickeV = 1.0;
+	}
+	else {
+		std::cout << "twand stimmt nicht mit abmaße ein " << std::endl;
+		dickeV = 0.0;
+	}
+
 	// KO Kriterien
-	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || planar < 0.5) {
+	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || planar < 0.5 || parallel == 0 || dickeV == 0) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
 
 
-	/*if (tWand % 0.25 == 0) {
-		std::cout << "K.O. KRITERIUM! " << std::endl;
-		return 0.0;
+	/*if (std::abs(std::fmod(tWand, 0.25)) > epsilon) {
+	*	std::cout << "wandstärke ist nicht standard (0.25x) " << std::endl;
+		standardAb = 0.0;
 	}*/
 
 
-	finalScore = (wandPercent + parallel + (1 - biegung) + selectedSym) / 4;
+	finalScore = (wandPercent*2 + parallel + (1 - biegung*0.5) + selectedSym) / 5;
 
 	std::cout << "final score blech: " << finalScore << std::endl;
 
@@ -85,21 +100,29 @@ double calcBlech(int tol, double parallel, double tWand, double wandPercent, dou
 
 
 
-double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent, double sym1, double sym2, double innen, double volRatio, double biegung, double planar) {
+double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent, double sym1, double sym2, double innen, double volRatio, double biegung, double planar, double BLaenge, double xDim, double yDim, double zDim) {
 
 	std::cout << "calc Biege-Blech beginnt " << std::endl;
 
 	double finalScore = 0.0;
 	double selectedSym = std::max(sym1,sym2);
+	double biegelängV = 1.0;
+
+	if (std::fabs(BLaenge-xDim) <= 1 || std::fabs(BLaenge - yDim) <= 1 || std::fabs(BLaenge - zDim) <= 1) {
+		biegelängV = 1.0;
+	} else {
+		std::cout << "biegelänge stimmt nicht ein " << std::endl;
+		biegelängV = 0.0;
+	}
 
 	// KO Kriterien
-	if (tol > 2 || innen > 0.98 || tWand > 20 || tWand < 1 || biegung < 0.2 || planar < 0.1) {
+	if (tol > 2 || innen > 0.98 || tWand > 20 || tWand < 1 || biegung < 0.2 || planar < 0.1 || biegelängV == 0 || parallel==0) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
 
 
-	finalScore = (wandPercent + biegung*8 + selectedSym) / 10;
+	finalScore = (wandPercent + biegung*4 + selectedSym) / 6;
 
 	std::cout << "final score Biegeblech: " << finalScore << std::endl;
 
@@ -167,7 +190,7 @@ double calcAdditiv(double xDim, double yDim, double zDim, int tol, double innen)
 }
 
 
-std::string calcPrefVerfahren(double blech, double biege, double rohr, double dreh, double mill, double addi, double threshold = 0.7) {
+std::string calcPrefVerfahren(double blech, double biege, double rohr, double dreh, double mill, double addi, double threshold) {
 
 	std::map<std::string, double> processScores = {
 		{"CNC-Blech", blech},

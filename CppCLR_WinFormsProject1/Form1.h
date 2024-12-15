@@ -699,7 +699,8 @@ private: void PerformAnalysis() {
         double parallelit‰tGroﬂFl‰chen = FindLargestFacesAndCheckParallel(centeredShape).first;
         double parallelit‰tDistance = FindLargestFacesAndCheckParallel(centeredShape).second;
         
-        std::vector<gp_Lin> samplingLines;
+        std::vector<gp_Lin> samplingLines0;//un-used
+        std::vector<gp_Lin> samplingLines1;
         std::vector<gp_Lin> samplingLines2;
         std::vector<gp_Lin> samplingLines3;
         std::vector<gp_Lin> samplingLines4;
@@ -715,22 +716,27 @@ private: void PerformAnalysis() {
         
         
 
-        double wandStaerke = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[0];
-        double wandPercent = FindWandstarke(centeredShape, mainAxis, samplingAmount, samplingLines)[1];
+        double wandStaerke = FindWandstarke(centeredShape, mainAxis, midAxis, minAxis, samplingAmount, samplingLines1)[0];
+        double wandPercent = FindWandstarke(centeredShape, mainAxis, midAxis, minAxis, samplingAmount, samplingLines1)[1];
         if (wandStaerke > smallestDimension) {
-            samplingLines.clear();
+            samplingLines0.clear();
+            samplingLines1.clear();
             std::cout << "Berechnete Wandst‰rke ist grˆﬂer als kleinstest Bauteilabmaﬂ, wechsele Berechnung auf ThirdAxisOfInertia()." << std::endl;
-            wandStaerke = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[0];
-            wandPercent = FindWandstarke(centeredShape, minAxis, samplingAmount, samplingLines)[1];
+            wandStaerke = FindWandstarke(centeredShape, mainAxis, minAxis, midAxis, samplingAmount, samplingLines1)[0];
+            wandPercent = FindWandstarke(centeredShape, mainAxis, minAxis, midAxis, samplingAmount, samplingLines1)[1];
+        } else {
+            std::cout << "Berechnete Wandst‰rke besteht so!! (1/2)" << std::endl;
         }
-        else if(wandStaerke > smallestDimension) {
-            samplingLines.clear();
+
+        if(wandStaerke > smallestDimension) {
+            samplingLines0.clear();
+            samplingLines1.clear();
             std::cout << "Berechnete Wandst‰rke ist grˆﬂer als kleinstest Bauteilabmaﬂ, wechsele Berechnung auf SecondAxisOfInertia()." << std::endl;
-            wandStaerke = FindWandstarke(centeredShape, midAxis, samplingAmount, samplingLines)[0];
-            wandPercent = FindWandstarke(centeredShape, midAxis, samplingAmount, samplingLines)[1];
+            wandStaerke = FindWandstarke(centeredShape, minAxis, midAxis, mainAxis, samplingAmount, samplingLines1)[0];
+            wandPercent = FindWandstarke(centeredShape, minAxis, midAxis, mainAxis, samplingAmount, samplingLines1)[1];
         }
         else {
-            std::cout << "Berechnete Wandst‰rke besteht so!!" << std::endl;
+            std::cout << "Berechnete Wandst‰rke besteht so!! (2/2)" << std::endl;
         }
         
         double umfang = calcUmfang(centeredShape, wandStaerke);
@@ -744,11 +750,11 @@ private: void PerformAnalysis() {
         BiegeInfo biegInfo = checkBiegung(centeredShape);
 
 
-        if (biegInfo.BiegeProbability > 0.8 || wandStaerke < 0) {
+        if (biegInfo.BiegeProbability > 0.97 || wandStaerke < 0 || wandPercent < 0.2) {
             std::cout << "Biegewahrscheinlichkeit sehr hoch, Wandst‰rke wird als distanz zwischen zwei grˆﬂten fl‰chen gesetzt" << std::endl;
-            std::cout << "ODER wandst‰rke konnte nicht gefunden werden modevalue -1" << std::endl;
+            std::cout << "ODER wandst‰rke konnte nicht gefunden werden modevalue -1 BZW. wandPercent confidence nicht hoch genug" << std::endl;
             wandStaerke = parallelit‰tDistance;
-            wandPercent = 1.0;
+            wandPercent = 0.6;
         }
 
         
@@ -758,14 +764,12 @@ private: void PerformAnalysis() {
         double innenStruktur = checkHohlraum(centeredShape, mainAxis, samplingAmount*2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, numRecursion);
 
 
-
-
         //Verfahrensberechnungen
         double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
         double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSymGes, profileScore, bauteilInfo.volumeRatio, innenStruktur, curvInfo.zwfKurvAnteil, curvInfo.einfKurvAnteil, curvInfo.andAnteil, curvInfo.planarAnteil);
         double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSymGes, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
-        double blech2d = calcBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil);
-        double blech3d = calcBiegeBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil);
+        double blech2d = calcBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil, bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension);
+        double blech3d = calcBiegeBlech(tolerance, parallelit‰tGroﬂFl‰chen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil, biegInfo.Laenge, bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension);
         double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
         //System::String^ prefVerfahren = "Pr‰ferrenz Verfahren";
         std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.72);
@@ -838,7 +842,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines) {
+        for (const auto& line : samplingLines1) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
@@ -852,9 +856,10 @@ private: void PerformAnalysis() {
             aisEdge->SetWidth(1.0); // Optional: set the width of the line
 
             // Display the line in the viewer
-            //myAISContext->Display(aisEdge, Standard_True);
+            myAISContext->Display(aisEdge, Standard_True);
             //myHelperEdges.push_back(aisEdge);
         }
+        
 
         // Redisplay the viewer
         myAISContext->UpdateCurrentViewer();

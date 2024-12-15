@@ -574,86 +574,103 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
 
 
 
-std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& mainAxis, int numSamples, std::vector<gp_Lin>& samplingLines) {
+std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& mainAxis, const gp_Dir& midAxis, const gp_Dir& minAxis, int numSamples, std::vector<gp_Lin>& samplingLines) {
     std::vector<double> wandStärke;
-    
-    // Step 1: Determine axes perpendicular to mainAxis
-    gp_Dir axisA, axisB;
-    GetPerpendicularAxes(mainAxis, axisA, axisB);
-
-    // Step 2: Compute dimensions along perpendicular axes
-    double dimensionMain = ComputeDimensionAlongAxis(shape, mainAxis);
-    double dimensionA = ComputeDimensionAlongAxis(shape, axisA);
-    double dimensionB = ComputeDimensionAlongAxis(shape, axisB);
-
-    // Step 3: Determine minAxis
-    gp_Dir minAxis = (dimensionA < dimensionB) ? axisA : axisB;
-    std::cout << "Dimension along mainAxis: " << dimensionMain << std::endl;
-    std::cout << "dimensionA: " << dimensionA << std::endl;
-    std::cout << "dimensionB: " << dimensionB << std::endl;
+    std::cout << "finde wandstärke beginnt.... " << std::endl;
 
     // Compute the bounding box of the shape
     Bnd_Box boundingBox;
     BRepBndLib::Add(shape, boundingBox);
     gp_Pnt minPnt = boundingBox.CornerMin();
     gp_Pnt maxPnt = boundingBox.CornerMax();
-    //boundingBox.Get(minPnt, maxPnt);
 
     // Project the min and max points onto the mainAxis
-    double minProjection = minPnt.XYZ().Dot(mainAxis.XYZ());
-    double maxProjection = maxPnt.XYZ().Dot(mainAxis.XYZ());
+    double minProjection1 = minPnt.XYZ().Dot(mainAxis.XYZ());
+    double maxProjection1 = maxPnt.XYZ().Dot(mainAxis.XYZ());
     double exclusionPercentage = 0.01;
-    double totalParamRange = maxProjection - minProjection;
-    double adjustedMinParam = minProjection + exclusionPercentage * totalParamRange;
-    double adjustedMaxParam = maxProjection - exclusionPercentage * totalParamRange;
-
+    double totalParamRange1 = maxProjection1 - minProjection1;
+    double adjustedMinParam1 = minProjection1 + exclusionPercentage * totalParamRange1;
+    double adjustedMaxParam1 = maxProjection1 - exclusionPercentage * totalParamRange1;
     // Ensure minProjection is less than maxProjection
-    if (adjustedMinParam > adjustedMaxParam) {
-        std::swap(adjustedMinParam, adjustedMaxParam);
+    if (adjustedMinParam1 > adjustedMaxParam1) {
+        std::swap(adjustedMinParam1, adjustedMaxParam1);
     }
-
     // Step 5: Generate sampling points
-    double totalLength = adjustedMaxParam - adjustedMinParam;
-    double interval = totalLength / (numSamples - 1);
+    double totalLength1 = adjustedMaxParam1 - adjustedMinParam1;
+    double interval1 = totalLength1 / (numSamples - 1);
 
-    std::vector<gp_Pnt> samplingPoints;
-
-    for (int i = 0; i < numSamples; ++i) {
-        double param = adjustedMinParam + i * interval;
-        // Compute the point along the mainAxis
-        gp_Pnt samplingPoint = gp_Pnt(0,0,0).Translated(mainAxis.XYZ() * param);
-        samplingPoints.push_back(samplingPoint);
-
-        gp_Lin line(samplingPoint, minAxis);
-        samplingLines.push_back(line);
+    //ALL AGAIN FOR OTHR CROSS AXIS
+    double minProjection2 = minPnt.XYZ().Dot(midAxis.XYZ());
+    double maxProjection2 = maxPnt.XYZ().Dot(midAxis.XYZ());
+    double totalParamRange2 = maxProjection2 - minProjection2;
+    double adjustedMinParam2 = minProjection2 + exclusionPercentage * totalParamRange2;
+    double adjustedMaxParam2 = maxProjection2 - exclusionPercentage * totalParamRange2;
+    if (adjustedMinParam2 > adjustedMaxParam2) {
+        std::swap(adjustedMinParam2, adjustedMaxParam2);
     }
+    double totalLength2 = adjustedMaxParam2 - adjustedMinParam2;
+    double interval2 = totalLength2 / (numSamples-1);
+
+    std::vector<gp_Pnt> samplingPoints1;
+    std::vector<gp_Pnt> samplingPoints2;
+    std::vector<gp_Lin> samplingLines1;
+    std::vector<gp_Lin> samplingLines2;
+
+
+    //FOR MIN AXIS (OG)
+    for (int i = 0; i < numSamples; ++i) {
+        double param1 = adjustedMinParam1 + i * interval1;
+        
+        gp_Pnt samplingPoint1 = gp_Pnt(0,0,0).Translated(mainAxis.XYZ() * param1); // Compute the point along the mainAxis
+        samplingPoints1.push_back(samplingPoint1);
+
+        gp_Lin line1(samplingPoint1, minAxis);
+        samplingLines1.push_back(line1);
+    }
+    //AGAIN FOR CROSS AXIS (NEW)
+    //for (int j = 0; j < numSamples; ++j) {
+    //    double param2 = adjustedMinParam2 + j * interval2;
+    //    gp_Pnt samplingPoint2 = gp_Pnt(0, 0, 0).Translated(midAxis.XYZ() * param2); // Compute the point along the midAxis
+    //    samplingPoints2.push_back(samplingPoint2);
+
+    //    gp_Lin line2(samplingPoint2, minAxis);
+    //    samplingLines2.push_back(line2);
+    //}
+    
+
+    samplingLines.clear();
+    samplingLines.insert(samplingLines.end(), samplingLines1.begin(), samplingLines1.end());
+    /*samplingLines.insert(samplingLines.end(), samplingLines2.begin(), samplingLines2.end());*/
+ 
 
     // Step 6: At each sampling point, compute minimal distances
     std::vector<double> minimalDistances;
+    int schnittpunkte = 0.0;
 
-    for (const auto& samplingPoint : samplingPoints) {
-        // Define a line at the sampling point in the direction of minAxis
-        gp_Lin line(samplingPoint, minAxis);
+    for (const auto& samplingPoint : samplingPoints1) {
+        
+        gp_Lin line(samplingPoint, minAxis); // Define a line at the sampling point in the direction of minAxis
 
-        // Intersect the line with the shape
-        std::vector<gp_Pnt> intersectionPoints = ComputeIntersectionPoints(shape, line);
+        std::vector<gp_Pnt> intersectionPoints = ComputeIntersectionPoints(shape, line); // Intersect the line with the shape
 
-        // Compute the minimal non-zero distance between intersection points
-        if (intersectionPoints.size() < 2) {
-            //return std::numeric_limits<double>::infinity();
-            continue;
+        if (intersectionPoints.size() < 2) {         // Compute the minimal non-zero distance between intersection points
+            continue; //return std::numeric_limits<double>::infinity();
         }
-        // Sort points along the line direction
-        std::vector<double> projections;
+        if (intersectionPoints.size() > 4) {
+            schnittpunkte++;
+        }
+
+        std::vector<double> projections; // Sort points along the line direction
         for (const auto& pnt : intersectionPoints) {
             double projection = pnt.XYZ().Dot(minAxis.XYZ());
             projections.push_back(projection);
         }
         std::sort(projections.begin(), projections.end());
+        int projLengthM = projections.size() - 1;
         // Compute distances between consecutive points
         double minimalDistance = std::numeric_limits<double>::infinity();
         for (size_t i = 1; i < projections.size(); ++i) {
-            double distance = projections[i] - projections[i - 1];
+            double distance = projections[projLengthM] - projections[i - 1]; //nimmt sich den nächsten Punkt & den am weitesten
             if (distance > 1e-6 && distance < minimalDistance) { // Exclude zero distances
                 minimalDistance = distance;
             }
@@ -663,6 +680,37 @@ std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& main
             minimalDistances.push_back(minimalDistance);
         }
     }
+
+    //for (const auto& samplingPoint : samplingPoints2) {
+
+    //    gp_Lin line(samplingPoint, minAxis); // Define a line at the sampling point in the direction of minAxis
+
+    //    std::vector<gp_Pnt> intersectionPoints = ComputeIntersectionPoints(shape, line); // Intersect the line with the shape
+
+    //    if (intersectionPoints.size() < 2) {         // Compute the minimal non-zero distance between intersection points
+    //        continue; //return std::numeric_limits<double>::infinity();
+    //    }
+
+    //    std::vector<double> projections; // Sort points along the line direction
+    //    for (const auto& pnt : intersectionPoints) {
+    //        double projection = pnt.XYZ().Dot(minAxis.XYZ());
+    //        projections.push_back(projection);
+    //    }
+    //    std::sort(projections.begin(), projections.end());
+    //    int projLengthM = projections.size() - 1;
+    //    // Compute distances between consecutive points
+    //    double minimalDistance = std::numeric_limits<double>::infinity();
+    //    for (size_t i = 1; i < projections.size(); ++i) {
+    //        double distance = projections[projLengthM] - projections[i - 1]; //nimmt sich den nächsten Punkt & den am weitesten
+    //        if (distance > 1e-6 && distance < minimalDistance) { // Exclude zero distances
+    //            minimalDistance = distance;
+    //        }
+    //    }
+
+    //    if (minimalDistance != std::numeric_limits<double>::infinity()) {
+    //        minimalDistances.push_back(minimalDistance);
+    //    }
+    //}
 
     // Step 7: Exclude zero values (already handled in ComputeMinimalDistance)
 
@@ -684,7 +732,7 @@ std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& main
             modeCount++;
         }
     }
-    double percentage = (static_cast<double>(modeCount) / minimalDistances.size());
+    double percentage = (static_cast<double>(modeCount) / (minimalDistances.size() + schnittpunkte));
 
     wandStärke.push_back(modeValue);
     wandStärke.push_back(percentage);
@@ -1355,7 +1403,7 @@ BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
     }
 
     std::cout << "Gewählte Face Edges-Anzahl: " << edges.size() << std::endl;
-    score = score + std::max(0.0, 1.0 - 0.02 * edges.size());
+    score = score + std::max(0.0, 1.0 - 0.05 * edges.size());
 
     // Mindestens 2 gerade und mindestens 2 gekrümmte Edges
     std::vector<TopoDS_Edge> straightEdges;

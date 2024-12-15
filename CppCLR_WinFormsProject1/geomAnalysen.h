@@ -28,7 +28,7 @@ double CheckRotSymmetry(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirecti
 
 
 std::vector<FaceArea> GetFacesWithArea(const TopoDS_Shape& shape);
-std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& mainAxis, int numSamples, std::vector<gp_Lin>& samplingLines);
+std::vector<double> FindWandstarke(const TopoDS_Shape& shape, const gp_Dir& mainAxis, const gp_Dir& midAxis, const gp_Dir& minAxis, int numSamples, std::vector<gp_Lin>& samplingLines);
 double ComputeDimensionAlongAxis(const TopoDS_Shape& shape, const gp_Dir& axis);
 
 gp_Dir ComputeFaceNormal(const TopoDS_Face& face);
