@@ -39,6 +39,6 @@ std::pair<double, double> FindLargestFacesAndCheckParallel(const TopoDS_Shape& s
 KurvenInfo checkCurvePercentage(const TopoDS_Shape& shape);
 
 double calcUmfang(const TopoDS_Shape& shape, double t);
-BiegeInfo checkBiegung(const TopoDS_Shape& shape);
+BiegeInfo checkBiegung(const TopoDS_Shape& shape, const gp_Dir& mainAxis, double tWand, std::vector<gp_Lin>& samplingLines);
 
 double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& axisDirection, int numSampling, std::vector<gp_Lin>& samplingLines);

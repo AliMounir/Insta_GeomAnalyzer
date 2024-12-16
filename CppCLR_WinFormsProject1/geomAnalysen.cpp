@@ -1084,6 +1084,14 @@ double CompareProfiles(const TopoDS_Wire& wire1, const TopoDS_Wire& wire2) {
 // Main function to check for profile consistency
 double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirection, int numSamplings, std::vector<gp_Lin>& samplingLines) {
     std::cout << "Beginn PROFILERKENNUNG..." << std::endl;
+
+    gp_Vec v(mainAxisDirection.X(), mainAxisDirection.Y(), mainAxisDirection.Z());
+    if (std::fabs(v.X()) < 0.3) v.SetX(0.0);
+    if (std::fabs(v.Y()) < 0.3) v.SetY(0.0);
+    if (std::fabs(v.Z()) < 0.3) v.SetZ(0.0);
+    v.Normalize();
+    gp_Dir roundedDir(v.X(), v.Y(), v.Z());
+
     try {
         // Berechne das Zentrum der Masse als Referenzpunkt
         GProp_GProps shapeProps;
@@ -1099,18 +1107,21 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
         gp_Pnt maxPnt = boundingBox.CornerMax();
 
         // Projiziere die Min- und Max-Punkte auf die Hauptachse
-        gp_Ax1 mainAxis(origin, mainAxisDirection);
+        gp_Ax1 mainAxis(origin, roundedDir);
         Standard_Real minParam = ElCLib::Parameter(mainAxis, minPnt);
         Standard_Real maxParam = ElCLib::Parameter(mainAxis, maxPnt);
 
         // Bestimme den Startpunkt entlang der Hauptachse
         Standard_Real startParam = std::min(minParam, maxParam);
+        Standard_Real endParam = std::max(minParam, maxParam);
 
         // Berechne den Startpunkt auf der Hauptachse
         gp_Pnt startPoint = ElCLib::Value(startParam, mainAxis);
+        gp_Pnt endPoint = ElCLib::Value(endParam, mainAxis);
 
         // Erstelle eine Ebene senkrecht zur Hauptachse am Startpunkt
-        gp_Pln frontPlane(startPoint, mainAxisDirection);
+        gp_Pln frontPlane(startPoint, roundedDir);
+        gp_Pln backPlane(endPoint, roundedDir);
 
         // Sammlung von Kanten an der Stirnfläche
         std::vector<TopoDS_Edge> frontEdges;
@@ -1125,8 +1136,17 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
                 gp_Pln plane = surface.Plane();
 
                 // Berechne den Abstand der Fläche zur frontPlane
-                double distance = plane.Location().Distance(startPoint);
-                if (distance < 1e-3) {
+                double distanceF = plane.Location().Distance(startPoint);
+                if (distanceF < 1e-3) {
+                    // Die Fläche liegt auf der Stirnfläche
+                    // Extrahiere die Kanten
+                    for (TopExp_Explorer edgeExplorer(face, TopAbs_EDGE); edgeExplorer.More(); edgeExplorer.Next()) {
+                        TopoDS_Edge edge = TopoDS::Edge(edgeExplorer.Current());
+                        frontEdges.push_back(edge);
+                    }
+                }
+                double distanceB = plane.Location().Distance(endPoint);
+                if (distanceF < 1e-3) {
                     // Die Fläche liegt auf der Stirnfläche
                     // Extrahiere die Kanten
                     for (TopExp_Explorer edgeExplorer(face, TopAbs_EDGE); edgeExplorer.More(); edgeExplorer.Next()) {
@@ -1136,9 +1156,26 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
                 }
             }
         }
+        // wann gar keine stirnfläche gefunden dann muss irgend eine planare genommen werden
+        if (frontEdges.empty()) {
+            for (TopExp_Explorer faceExplorer(shape, TopAbs_FACE); faceExplorer.More(); faceExplorer.Next()) {
+                TopoDS_Face face = TopoDS::Face(faceExplorer.Current());
+                BRepAdaptor_Surface surface(face);
+                if (surface.GetType() == GeomAbs_Plane && ComputeFaceNormal(face).IsParallel(roundedDir, 1)) {
+                    gp_Pln plane = surface.Plane();
+
+                    for (TopExp_Explorer edgeExplorer(face, TopAbs_EDGE); edgeExplorer.More(); edgeExplorer.Next()) {
+                        TopoDS_Edge edge = TopoDS::Edge(edgeExplorer.Current());
+                        frontEdges.push_back(edge);
+                    }
+                    
+                }
+            }
+            std::cout << "Keine Stirnflächenkanten gefunden.-- suche jetzt nach irgend einer planaren fläche" << std::endl;
+        }
 
         if (frontEdges.empty()) {
-            std::cout << "Keine Stirnflächenkanten gefunden." << std::endl;
+            std::cout << "auch keine planaren flächen -- Keine Stirnflächenkanten gefunden." << std::endl;
             throw std::runtime_error("Keine Stirnflächenkanten gefunden.");
         }
 
@@ -1175,7 +1212,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
                 gp_Vec tangent;
                 curve->D1(param, point, tangent);
 
-                gp_Dir planeNormal = mainAxisDirection;
+                gp_Dir planeNormal = roundedDir;
                 gp_Dir normal = planeNormal.Crossed(tangent);
                 //normal = normal.Normalized();
 
@@ -1189,7 +1226,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
 
         // Erstelle für jeden Sampling-Punkt eine Linie entlang der Hauptachse
         for (const auto& point : samplingPoints) {
-            gp_Lin line(point, mainAxisDirection);
+            gp_Lin line(point, roundedDir);
             samplingLines.push_back(line);
             std::cout << "testpunkt an stirnfläche mit offset (" << point.X() << "/" << point.Y() << "/" << point.Z() << std::endl;
         }
@@ -1205,7 +1242,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
 
             // Wenn es Schnittpunkte gibt, erhöhe den Zähler
             if (!intersectionPoints.empty()) {
-                linesWithIntersections += 1.5;
+                linesWithIntersections += 1;
             }
             std::cout << "Sampling-Linie " << i + 1 << ": ";
             if (!intersectionPoints.empty()) {
@@ -1275,7 +1312,7 @@ double calcUmfang(const TopoDS_Shape& shape, double t) {
 }
 
 
-BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
+BiegeInfo checkBiegung(const TopoDS_Shape& shape, const gp_Dir& mainAxis, double tWand, std::vector<gp_Lin>& samplingLines) {
     std::cout << "checkBiegung aufgerufen..." << std::endl;
     BiegeInfo info;
     info.potentialBiegungen = 0;
@@ -1329,21 +1366,52 @@ BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
             std::cout << "Face #" << faceIndex << ": Nicht zylindrisch, ignoriere." << std::endl;
         }
     }
-
-    // 2) Geschlossene Zylinder entfernen (uRange ~ 2π)
+    faceIndex = 0;
+    //int laengeMatch = 1;
+    // 2) Geschlossene Zylinder entfernen (uRange ~ 2π) && Fasen oder Bauteilkantenverrundungen
     std::vector<std::pair<TopoDS_Face, BRepAdaptor_Surface>> filteredCylinders;
     for (auto& cpair : cylinderFaces) {
+        faceIndex++;
         auto& face = cpair.first;
         auto& surf = cpair.second;
         Standard_Real uMin = surf.FirstUParameter();
         Standard_Real uMax = surf.LastUParameter();
         Standard_Real uRange = uMax - uMin;
+        Standard_Real vMin = surf.FirstVParameter();
+        Standard_Real vMax = surf.LastVParameter();
+        Standard_Real vLength = std::fabs(vMax - vMin);
         if (std::fabs(uRange - (2.0 * M_PI)) < 1e-6 || std::fabs(uRange - (M_PI)) < 1e-6) {
-            std::cout << "Zylindrische Face mit vollem 2π/π Umfang gefunden, ignorieren." << std::endl;
+            std::cout << "Face #" << faceIndex << " Zylindrische Face mit vollem pi/2pi Umfang gefunden, ignorieren." << std::endl;
             continue;
         }
+
+        Handle(Geom_Surface) geomSurf = BRep_Tool::Surface(face);
+        if (geomSurf.IsNull()) {
+            std::cerr << "Keine gültige Geom_Surface für dieses Face gefunden." << std::endl;
+            continue;
+        }
+        Handle(Geom_CylindricalSurface) cylSurface = Handle(Geom_CylindricalSurface)::DownCast(geomSurf);
+        if (cylSurface.IsNull()) {
+            std::cerr << "DownCast zur Geom_CylindricalSurface fehlgeschlagen für eine zylindrische Fläche." << std::endl;
+            continue;
+        }
+        gp_Ax3 cylPos = cylSurface->Position();
+        gp_Ax1 cylAxis = cylPos.Axis();
+        gp_Dir cylDir = cylAxis.Direction();
+
+        gp_Lin line(gp_Pnt(0.0,0.0,0.0), cylDir);
+        samplingLines.push_back(line);
+        Standard_Real angle = cylDir.Angle(mainAxis);
+        std::cout << "Face #" << faceIndex << " Winkel zwischen cylDir und mainAxisDir: " << angle << " rad" << std::endl;
+
+        if (cylDir.IsParallel(mainAxis, 1) && std::fabs(vLength - tWand) <= 1) {
+            std::cout << "Die Zylinderachse ist parallel zur mainAxis && Länge ähnlich/gleich wandstärke" << std::endl;
+            continue;
+        }
+
         filteredCylinders.push_back(cpair);
     }
+
 
     // Jetzt ist die Anzahl der remaining Zylindrischen Flächen unsere potentialBiegungen
     info.potentialBiegungen = (int)filteredCylinders.size();
@@ -1364,7 +1432,8 @@ BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
         auto& surf = filteredCylinders[i].second;
         Standard_Real vMin = surf.FirstVParameter();
         Standard_Real vMax = surf.LastVParameter();
-        double candidateVal = std::max(std::fabs((double)vMin), std::fabs((double)vMax));
+        /*double candidateVal = std::max(std::fabs((double)vMin), std::fabs((double)vMax));*/
+        double candidateVal = std::fabs((double)vMin) + std::fabs((double)vMax);
         std::cout << "Face " << i << ": vMin=" << vMin << ", vMax=" << vMax << ", candidateVal=" << candidateVal << std::endl;
         if (candidateVal >= maxVValue) {
             maxVValue = candidateVal;
@@ -1432,7 +1501,8 @@ BiegeInfo checkBiegung(const TopoDS_Shape& shape) {
     }
 
     // 5) info.Laenge = max(|vMin|, |vMax|)
-    double laenge = std::max(std::fabs((double)vMin), std::fabs((double)vMax));
+    //double laenge = std::max(std::fabs((double)vMin), std::fabs((double)vMax));
+    double laenge = std::fabs((double)vMin) + std::fabs((double)vMax);
 
     // 6) Winkel = (uMax - uMin) in Grad
     double winkelRad = std::fabs((double)(uMax - uMin));

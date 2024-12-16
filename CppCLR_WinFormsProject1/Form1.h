@@ -668,27 +668,27 @@ private: void PerformAnalysis() {
             midAxis = secondAxis;
             minAxis = thirdAxis;
             std::cout << "Szenario A: Alle drei Dimensionen sind ähnlich oder zwei sind gleich und die dritte ist kleiner." << std::endl;
-            länge = firstLength;
-            durchmesser1 = secondLength;
-            durchmesser2 = thirdLength;
+            länge = std::min(firstLength, std::min(secondLength, thirdLength));
+            durchmesser1 = std::max(firstLength, std::max(secondLength, thirdLength));
+            durchmesser2 = std::max(firstLength, std::max(secondLength, thirdLength));
         }
         else if (twoSimilarAndThirdLarger) {
             mainAxis = thirdAxis;
             midAxis = secondAxis;
             minAxis = firstAxis;
             std::cout << "Szenario B: Zwei Dimensionen sind ähnlich und die dritte ist größer." << std::endl;
-            länge = thirdLength;
-            durchmesser1 = secondLength;
-            durchmesser2 = firstLength;
+            länge = std::max(firstLength, std::max(secondLength, thirdLength));
+            durchmesser1 = std::min(firstLength, std::min(secondLength, thirdLength));
+            durchmesser2 = std::min(firstLength, std::min(secondLength, thirdLength));
         }
         else {
             mainAxis = firstAxis;
             midAxis = secondAxis;
             minAxis = thirdAxis;
             std::cout << "Szenario C: undefined/else" << std::endl;
-            länge = firstLength;
-            durchmesser1 = secondLength;
-            durchmesser2 = thirdLength;
+            länge = ComputeDimensionAlongAxis(centeredShape, mainAxis);
+            durchmesser1 = ComputeDimensionAlongAxis(centeredShape, midAxis);
+            durchmesser2 = ComputeDimensionAlongAxis(centeredShape, minAxis);
         }
         std::cout << "Länge: " <<länge << "    durchmesser 1: " << durchmesser1 << "    durchmesser 2: " << durchmesser2 << std::endl;
 
@@ -699,13 +699,14 @@ private: void PerformAnalysis() {
         double parallelitätGroßFlächen = FindLargestFacesAndCheckParallel(centeredShape).first;
         double parallelitätDistance = FindLargestFacesAndCheckParallel(centeredShape).second;
         
-        std::vector<gp_Lin> samplingLines0;//un-used
-        std::vector<gp_Lin> samplingLines1;
-        std::vector<gp_Lin> samplingLines2;
-        std::vector<gp_Lin> samplingLines3;
-        std::vector<gp_Lin> samplingLines4;
-        std::vector<gp_Lin> samplingLines5;
-        std::vector<gp_Lin> samplingLines6;
+        std::vector<gp_Lin> samplingLines0; // Biegung (zylinderachsen)
+        std::vector<gp_Lin> samplingLines1; // Wandstärke (sampling richtung)
+        std::vector<gp_Lin> samplingLines2; // Spiegelsymmetrie A (sampling richtung)
+        std::vector<gp_Lin> samplingLines3; // Spiegelsymmetrie B (sampling richtung)
+        std::vector<gp_Lin> samplingLines4; // Rotationssymmetrie (sampling richtung)
+        std::vector<gp_Lin> samplingLines5; // Profil (sampling richtung)
+        std::vector<gp_Lin> samplingLines6; // innenstruktur sonne
+
         double symmetrieMid = CheckLinSymmetry(centeredShape, mainAxis, midAxis, samplingAmount * 2, samplingLines2);
         double symmetrieMin = CheckLinSymmetry(centeredShape, mainAxis, minAxis, samplingAmount * 2, samplingLines3);
         double gesamtSymmetrie = (symmetrieMin + symmetrieMid) / 2;
@@ -743,11 +744,16 @@ private: void PerformAnalysis() {
 
 
         double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
+
+        if (profileScore < 0) {
+            profileScore = 0;
+            std::cout << "kein profil gefunden / war negativ" << std::endl;
+        }
         
         KurvenInfo curvInfo = checkCurvePercentage(centeredShape);
 
 
-        BiegeInfo biegInfo = checkBiegung(centeredShape);
+        BiegeInfo biegInfo = checkBiegung(centeredShape, mainAxis, wandStaerke, samplingLines0);
 
 
         if (biegInfo.BiegeProbability > 0.97 || wandStaerke < 0 || wandPercent < 0.2) {
@@ -768,11 +774,11 @@ private: void PerformAnalysis() {
         double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
         double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSymGes, profileScore, bauteilInfo.volumeRatio, innenStruktur, curvInfo.zwfKurvAnteil, curvInfo.einfKurvAnteil, curvInfo.andAnteil, curvInfo.planarAnteil);
         double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSymGes, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
-        double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil, bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension);
+        double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil, curvInfo.einfKurvAnteil, curvInfo.zwfKurvAnteil, curvInfo.andAnteil, bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension);
         double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil, biegInfo.Laenge, bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension);
-        double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur);
+        double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur, bauteilInfo.volumeRatio);
         //System::String^ prefVerfahren = "Präferrenz Verfahren";
-        std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.72);
+        std::string prefVerfahren = calcPrefVerfahren(blech2d, blech3d, rohrlaser, drehen, fraesen, additivesV, 0.7);
         
 
 
@@ -842,7 +848,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines1) {
+        for (const auto& line : samplingLines5) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
@@ -898,6 +904,11 @@ private: void PerformAnalysis() {
 
             // Anzeigen des Shapes im Viewer
             myAISContext->Display(aisShape, Standard_True);
+            
+           
+            /*Handle(Prs3d_LineAspect) lineAspect = new Prs3d_LineAspect(Quantity_NOC_BLACK, Aspect_TOL_SOLID, 1.0);
+            aisShape->Attributes()->SetLineAspect(lineAspect);*/
+            //aisShape->Attributes()->SetEdgeOn(Standard_True);
 
             // Die Ansicht anpassen, um das gesamte Shape anzuzeigen
             myView->FitAll();

@@ -22,7 +22,7 @@ double calcFraesen(int tol, double tWand, double innen, double volRatio, double 
 		tol = 1;
 	}
 
-	finalScore = (volRatio + (1-innen) + (1-profil) + tol) / 4;
+	finalScore = (volRatio*2 + (1-innen) + (1-profil) + tol) / 5;
 
 	std::cout << "final score fräsen: " << finalScore << std::endl;
 
@@ -36,14 +36,14 @@ double calcFraesen(int tol, double tWand, double innen, double volRatio, double 
 
 double calcDrehen(double D1, double D2, int tol, double rotSym, double profil, double volRatio, double innen, double zwKrum, double einKrum, double othKrum, double planar) {
 
-	std::cout << "calc Rohlaserteil beginnt " << std::endl;
+	std::cout << "calc Drehen beginnt " << std::endl;
 
 	double finalScore = 0.0;
 	double durchmesser = (D1 + D2) / 2;
 	double dRatio = (std::min(D1, D2))/(std::max(D1, D2));
 
 	// KO Kriterien
-	if (dRatio < 0.9 || durchmesser > 900 || zwKrum > 0.7 || othKrum > 0.8 || planar > 0.75 || einKrum < 0.2 || tol > 3 || innen > 0.98) {
+	if (dRatio < 0.9 || durchmesser > 900 || zwKrum > 0.7 || othKrum > 0.8 || planar > 0.9 || einKrum < 0.1 || tol > 3 || innen > 0.98) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
@@ -51,7 +51,7 @@ double calcDrehen(double D1, double D2, int tol, double rotSym, double profil, d
 
 	std::cout << "durchmesser errechnet: " << durchmesser << "mit D Ratio: " << dRatio * 100 << "%" << std::endl;
 
-	finalScore = (dRatio + einKrum + rotSym) / 3;
+	finalScore = (dRatio + einKrum + rotSym*2) / 4;
 
 	std::cout << "final score drehen: " << finalScore << std::endl;
 
@@ -61,13 +61,15 @@ double calcDrehen(double D1, double D2, int tol, double rotSym, double profil, d
 
 
 
-double calcBlech(int tol, double parallel, double tWand, double wandPercent, double sym1, double sym2, double innen, double volRatio, double biegung, double planar, double xDim, double yDim, double zDim) {
+double calcBlech(int tol, double parallel, double tWand, double wandPercent, double sym1, double sym2, double innen, double volRatio, double biegung, double planar, double ekrum, double zwkrum, double ankrum, double xDim, double yDim, double zDim) {
 
 	std::cout << "calc Blech beginnt " << std::endl;
 
 	double finalScore = 0.0;
 	double selectedSym = std::max(sym1, sym2);
 	double dickeV = 1.0;
+
+	double krum = std::max({ ekrum, zwkrum, ankrum});
 
 
 	if (std::fabs(tWand - xDim) <= 1 || std::fabs(tWand - yDim) <= 1 || std::fabs(tWand - zDim) <= 1) {
@@ -78,8 +80,8 @@ double calcBlech(int tol, double parallel, double tWand, double wandPercent, dou
 		dickeV = 0.0;
 	}
 
-	// KO Kriterien
-	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || planar < 0.5 || parallel == 0 || dickeV == 0) {
+	// KO Kriterien																 || dickeV == 0
+	if (tol > 2 || innen > 0.98 || tWand > 50 || tWand < 0.25 || planar < 0.5 || parallel == 0) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
@@ -91,7 +93,7 @@ double calcBlech(int tol, double parallel, double tWand, double wandPercent, dou
 	}*/
 
 
-	finalScore = (wandPercent*2 + parallel + (1 - biegung*0.5) + selectedSym) / 5;
+	finalScore = (wandPercent * 2 + parallel + (1 - biegung) + selectedSym + dickeV + planar + (1-krum)) / 8;
 
 	std::cout << "final score blech: " << finalScore << std::endl;
 
@@ -115,14 +117,14 @@ double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent
 		biegelängV = 0.0;
 	}
 
-	// KO Kriterien
-	if (tol > 2 || innen > 0.98 || tWand > 20 || tWand < 1 || biegung < 0.2 || planar < 0.1 || biegelängV == 0 || parallel==0) {
+	// KO Kriterien																				// parallel==0 || biegelängV == 0
+	if (tol > 2 || innen > 0.98 || tWand > 20 || tWand < 1 || biegung < 0.2 || planar < 0.1) {
 		std::cout << "K.O. KRITERIUM! " << std::endl;
 		return 0.0;
 	}
 
 
-	finalScore = (wandPercent + biegung*4 + selectedSym) / 6;
+	finalScore = (wandPercent + biegung*5 + selectedSym + biegelängV + parallel) / 9;
 
 	std::cout << "final score Biegeblech: " << finalScore << std::endl;
 
@@ -140,7 +142,6 @@ double calcRohrLaserTeil (double D1, double D2, int tol, double sym, double rotS
 	double finalScore = 0.0;
 	double durchmesser = (D1+D2)/2;
 	double dRatio = (std::min(D1, D2)) / (std::max(D1, D2));
-	double allgemeineSym = 0.0;
 
 	// KO Kriterien
 	if (dRatio < 0.9 || durchmesser > 400 || volRatio > 0.9 || tol > 2 || innen > 0.98 || tWand > durchmesser || tWand < 0.2 || profil < 0.2) {
@@ -148,12 +149,9 @@ double calcRohrLaserTeil (double D1, double D2, int tol, double sym, double rotS
 		return 0.0;
     }
 
-	//muss mindestens eine beider Symmetrien aufweisen
-	if (sym < rotSym) {
-		allgemeineSym = rotSym;
-	} else {
-		allgemeineSym = sym;
-	}
+	
+	double allgemeineSym = std::max(rotSym, sym);
+	
 
 	std::cout << "durchmesser errechnet: " << durchmesser << "mit D Ratio: " << dRatio << " und gewählte symmetrie: " << allgemeineSym * 100 << "%" << std::endl;
 
@@ -165,7 +163,7 @@ double calcRohrLaserTeil (double D1, double D2, int tol, double sym, double rotS
 }
 
 
-double calcAdditiv(double xDim, double yDim, double zDim, int tol, double innen) {
+double calcAdditiv(double xDim, double yDim, double zDim, int tol, double innen, double volRatio) {
 
 	std::cout << "calc Additves Verfahren beginnt " << std::endl;
 
@@ -182,7 +180,7 @@ double calcAdditiv(double xDim, double yDim, double zDim, int tol, double innen)
 		innen = 1 - innen;
 	}
 
-	finalScore = (innen + 5) / 6;
+	finalScore = (innen + 3 + (1-volRatio)) / 5;
 
 	std::cout << "final score additive verfahren: " << finalScore << std::endl;
 
@@ -225,7 +223,7 @@ std::string calcPrefVerfahren(double blech, double biege, double rohr, double dr
 	}
 
 
-	double newThreshold = threshold * 0.9;
+	double newThreshold = threshold * 0.8;
 	std::cout << "Didnt find pref.Verfahren. New threshold is: " << newThreshold << std::endl;
 	for (const auto& process : order) {
 		auto it = processScores.find(process);
