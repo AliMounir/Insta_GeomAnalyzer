@@ -1103,6 +1103,14 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
         BRepBndLib::Add(shape, boundingBox);
         boundingBox.SetGap(0);
 
+
+        Standard_Real xmin, ymin, zmin, xmax, ymax, zmax;
+        boundingBox.Get(xmin, ymin, zmin, xmax, ymax, zmax);
+
+        double xDim = xmax - xmin;
+        double yDim = ymax - ymin;
+        double zDim = zmax - zmin;
+
         gp_Pnt minPnt = boundingBox.CornerMin();
         gp_Pnt maxPnt = boundingBox.CornerMax();
 
@@ -1158,6 +1166,8 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
         }
         // wann gar keine stirnfläche gefunden dann muss irgend eine planare genommen werden
         if (frontEdges.empty()) {
+            std::cout << "Keine Stirnflächenkanten gefunden.-- suche jetzt nach irgend einer planaren fläche" << std::endl;
+
             for (TopExp_Explorer faceExplorer(shape, TopAbs_FACE); faceExplorer.More(); faceExplorer.Next()) {
                 TopoDS_Face face = TopoDS::Face(faceExplorer.Current());
                 BRepAdaptor_Surface surface(face);
@@ -1168,10 +1178,10 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
                         TopoDS_Edge edge = TopoDS::Edge(edgeExplorer.Current());
                         frontEdges.push_back(edge);
                     }
-                    
+                    std::cout << "Passende Fläche gefunden. Kanten wurden gesammelt." << std::endl;
+                    break;
                 }
             }
-            std::cout << "Keine Stirnflächenkanten gefunden.-- suche jetzt nach irgend einer planaren fläche" << std::endl;
         }
 
         if (frontEdges.empty()) {
@@ -1188,7 +1198,7 @@ double checkForProfile(const TopoDS_Shape& shape, const gp_Dir& mainAxisDirectio
 
         std::cout << "frontal plane edge points found: " << pointsPerEdge << std::endl;
 
-        double offsetDistance = 0.1;
+        double offsetDistance = 0.2 * std::min({ xDim , yDim ,zDim });
 
         // Für jede Kante Punkte generieren
         for (const auto& edge : frontEdges) {

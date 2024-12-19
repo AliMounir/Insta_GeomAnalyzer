@@ -106,8 +106,8 @@ std::vector<gp_Lin> CreateSunRays(const gp_Pnt& origin, int numSamplings, gp_Dir
 double checkHohlraum(const TopoDS_Shape& shape, gp_Dir hauptDir, int numSamplings, const gp_Pnt& startPoint, std::vector<gp_Pnt>& visitedPoints, std::vector<gp_Lin>& samplingLines, int recursionDepth) {
     
     
-    //int maxRecursionDepth = 6;
-    if (recursionDepth > 2) {
+    //int maxRecursionDepth = 2;
+    if (recursionDepth > 1) {
         std::cout << "REKURSION LIMIT ERREICHT" << std::endl;
         return 1.0;
     }
@@ -169,9 +169,10 @@ double checkHohlraum(const TopoDS_Shape& shape, gp_Dir hauptDir, int numSampling
         if (numIntersections == 0) {
             noIntersectCount++;
         }
-        // Falls mehr als 20 Schnittpunkte gefunden wurden, abbrechen und 1.0 zurückgeben
-        if (numIntersections > 20) {
+        // Falls mehr als 10 Schnittpunkte gefunden wurden, abbrechen und 1.0 zurückgeben
+        if (numIntersections > 10) {
             //min. 15% der Rays können raus gehen
+            std::cout << " high fragmentation detected.... " << std::endl;
             highFragment = true;
             break;
             //return 1.0;
@@ -237,6 +238,7 @@ double checkHohlraum(const TopoDS_Shape& shape, gp_Dir hauptDir, int numSampling
         // Check the 15% condition
         double fractionNoIntersect = (double)noIntersectCount / (double)numSamplings;
         if (fractionNoIntersect >= 0.15) {
+            std::cout << " high fragmentation is not enclosed.... " << std::endl;
             return 0.0;
         }
         else {

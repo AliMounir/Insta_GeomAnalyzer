@@ -130,13 +130,13 @@ namespace CppCLRWinFormsProject {
         void InitializeComponent(void)
         {
             this->panel1 = (gcnew System::Windows::Forms::Panel());
+            this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
             this->button4 = (gcnew System::Windows::Forms::Button());
             this->textBox7 = (gcnew System::Windows::Forms::TextBox());
             this->textBox6 = (gcnew System::Windows::Forms::TextBox());
             this->textBox5 = (gcnew System::Windows::Forms::TextBox());
             this->textBox4 = (gcnew System::Windows::Forms::TextBox());
             this->textBox1 = (gcnew System::Windows::Forms::TextBox());
-            this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
             this->button1 = (gcnew System::Windows::Forms::Button());
             this->textBox2 = (gcnew System::Windows::Forms::TextBox());
             this->textBox3 = (gcnew System::Windows::Forms::TextBox());
@@ -164,6 +164,23 @@ namespace CppCLRWinFormsProject {
             this->panel1->TabIndex = 0;
             this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form1::panel1_Paint);
             this->panel1->Resize += gcnew System::EventHandler(this, &Form1::panel1_Resize);
+            // 
+            // checkBox1
+            // 
+            this->checkBox1->AutoSize = true;
+            this->checkBox1->BackColor = System::Drawing::SystemColors::ControlDarkDark;
+            this->checkBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+                static_cast<System::Byte>(0)));
+            this->checkBox1->ForeColor = System::Drawing::SystemColors::ControlLightLight;
+            this->checkBox1->Location = System::Drawing::Point(963, 450);
+            this->checkBox1->Name = L"checkBox1";
+            this->checkBox1->Size = System::Drawing::Size(83, 19);
+            this->checkBox1->TabIndex = 11;
+            this->checkBox1->TabStop = false;
+            this->checkBox1->Text = L"Hilfslinien";
+            this->checkBox1->UseVisualStyleBackColor = false;
+            this->checkBox1->Visible = false;
+            this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkBox1_CheckedChanged);
             // 
             // button4
             // 
@@ -259,22 +276,6 @@ namespace CppCLRWinFormsProject {
             this->textBox1->TabIndex = 1;
             this->textBox1->TabStop = false;
             this->textBox1->Text = L"C:\\Users\\Ali Mounir\\Desktop\\TestCads\\test-platte.stp";
-            // 
-            // checkBox1
-            // 
-            this->checkBox1->AutoSize = true;
-            this->checkBox1->BackColor = System::Drawing::SystemColors::ControlDarkDark;
-            this->checkBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.2F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-                static_cast<System::Byte>(0)));
-            this->checkBox1->ForeColor = System::Drawing::SystemColors::ControlLightLight;
-            this->checkBox1->Location = System::Drawing::Point(965, 450);
-            this->checkBox1->Name = L"checkBox1";
-            this->checkBox1->Size = System::Drawing::Size(83, 19);
-            this->checkBox1->TabIndex = 11;
-            this->checkBox1->TabStop = false;
-            this->checkBox1->Text = L"Hilfslinien";
-            this->checkBox1->UseVisualStyleBackColor = false;
-            this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkBox1_CheckedChanged);
             // 
             // button1
             // 
@@ -488,7 +489,7 @@ namespace CppCLRWinFormsProject {
         myView->TriedronDisplay(Aspect_TOTP_LEFT_LOWER, Quantity_NOC_WHITE, 0.08, V3d_ZBUFFER);
         gp_Pnt origin(0, 0, 0);
         //Standard_Real axisLength = largestDimension * 1.1;
-        Standard_Real axisLength = 20;
+        Standard_Real axisLength = 40;
         gp_Pnt xAxisEnd(axisLength, 0, 0);
         TopoDS_Edge xAxisEdge = BRepBuilderAPI_MakeEdge(origin, xAxisEnd);
         Handle(AIS_Shape) aisXAxis = new AIS_Shape(xAxisEdge);
@@ -565,7 +566,7 @@ namespace CppCLRWinFormsProject {
         TopoDS_Vertex vertex1 = BRepBuilderAPI_MakeVertex(origin);
         Handle(AIS_Shape) originPoint = new AIS_Shape(vertex1);
         myAISContext->Display(originPoint, true);
-        Standard_Real axisLength = 20;
+        Standard_Real axisLength = 40;
         gp_Pnt xAxisEnd(axisLength, 0, 0);
         TopoDS_Edge xAxisEdge = BRepBuilderAPI_MakeEdge(origin, xAxisEnd);
         Handle(AIS_Shape) aisXAxis = new AIS_Shape(xAxisEdge);
@@ -740,10 +741,23 @@ private: void PerformAnalysis() {
             std::cout << "Berechnete Wandstärke besteht so!! (2/2)" << std::endl;
         }
         
-        double umfang = calcUmfang(centeredShape, wandStaerke);
+        double umfang = 0.0;
+        if (stepInfo.numEdges > 5000) {
+            umfang = 2 * std::max(bauteilInfo.xDimension, bauteilInfo.yDimension) + 2 * std::max(bauteilInfo.yDimension, bauteilInfo.zDimension);
+        }
+        else {
+            umfang = calcUmfang(centeredShape, wandStaerke);
+        }
+        
 
 
-        double profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
+        double profileScore = 0.0;
+        if (stepInfo.numVertices > 10000) {
+            profileScore = 0.0;
+        }
+        else {
+            profileScore = checkForProfile(centeredShape, mainAxis, samplingAmount * 2, samplingLines5);
+        }
 
         if (profileScore < 0) {
             profileScore = 0;
@@ -767,13 +781,13 @@ private: void PerformAnalysis() {
 
         std::vector<gp_Pnt> visitedPoints;
         int numRecursion = 0;
-        double innenStruktur = checkHohlraum(centeredShape, mainAxis, samplingAmount*2, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, numRecursion);
+        double innenStruktur = checkHohlraum(centeredShape, mainAxis, samplingAmount*3, gp_Pnt(0.0, 0.0, 0.0), visitedPoints, samplingLines6, numRecursion);
 
 
         //Verfahrensberechnungen
         double fraesen = calcFraesen(tolerance, wandStaerke, innenStruktur, bauteilInfo.volumeRatio, profileScore);
         double drehen = calcDrehen(durchmesser1, durchmesser2, tolerance, rotSymGes, profileScore, bauteilInfo.volumeRatio, innenStruktur, curvInfo.zwfKurvAnteil, curvInfo.einfKurvAnteil, curvInfo.andAnteil, curvInfo.planarAnteil);
-        double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, gesamtSymmetrie, rotSymGes, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
+        double rohrlaser = calcRohrLaserTeil(durchmesser1, durchmesser2, tolerance, symmetrieMid, symmetrieMin, rotSymGes, profileScore, wandStaerke, wandPercent, bauteilInfo.volumeRatio, innenStruktur);
         double blech2d = calcBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil, curvInfo.einfKurvAnteil, curvInfo.zwfKurvAnteil, curvInfo.andAnteil, bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension);
         double blech3d = calcBiegeBlech(tolerance, parallelitätGroßFlächen, wandStaerke, wandPercent, symmetrieMid, symmetrieMin, innenStruktur, bauteilInfo.volumeRatio, biegInfo.BiegeProbability, curvInfo.planarAnteil, biegInfo.Laenge, bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension);
         double additivesV = calcAdditiv(bauteilInfo.xDimension, bauteilInfo.yDimension, bauteilInfo.zDimension, tolerance, innenStruktur, bauteilInfo.volumeRatio);
@@ -848,7 +862,7 @@ private: void PerformAnalysis() {
         // Use half of the bounding box length for the lines
         double length = boundingBoxLength / 2.0;
 
-        for (const auto& line : samplingLines5) {
+        for (const auto& line : samplingLines6) {
             // Define the start and end points of the line segment
             gp_Pnt P1 = line.Location().Translated(line.Direction().XYZ() * (-length));
             gp_Pnt P2 = line.Location().Translated(line.Direction().XYZ() * length);
@@ -862,7 +876,7 @@ private: void PerformAnalysis() {
             aisEdge->SetWidth(1.0); // Optional: set the width of the line
 
             // Display the line in the viewer
-            myAISContext->Display(aisEdge, Standard_True);
+            //myAISContext->Display(aisEdge, Standard_True);
             //myHelperEdges.push_back(aisEdge);
         }
         
@@ -902,13 +916,17 @@ private: void PerformAnalysis() {
             // Erstellen eines AIS_Shape aus dem importierten Shape
             Handle(AIS_Shape) aisShape = new AIS_Shape(centeredShape);
 
+
+            
+
+            Handle(Prs3d_Drawer) drawer = aisShape->Attributes();
+            Handle(Prs3d_LineAspect) lineAspect = new Prs3d_LineAspect(Quantity_NOC_BLACK, Aspect_TOL_SOLID, 2.0);
+            drawer->SetFaceBoundaryAspect(lineAspect);
+            drawer->SetFaceBoundaryDraw(Standard_True);
+            aisShape->SetColor(Quantity_NOC_ORANGE);
+
             // Anzeigen des Shapes im Viewer
             myAISContext->Display(aisShape, Standard_True);
-            
-           
-            /*Handle(Prs3d_LineAspect) lineAspect = new Prs3d_LineAspect(Quantity_NOC_BLACK, Aspect_TOL_SOLID, 1.0);
-            aisShape->Attributes()->SetLineAspect(lineAspect);*/
-            //aisShape->Attributes()->SetEdgeOn(Standard_True);
 
             // Die Ansicht anpassen, um das gesamte Shape anzuzeigen
             myView->FitAll();

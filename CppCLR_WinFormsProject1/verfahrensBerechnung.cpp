@@ -135,7 +135,7 @@ double calcBiegeBlech(int tol, double parallel, double tWand, double wandPercent
 
 
 
-double calcRohrLaserTeil (double D1, double D2, int tol, double sym, double rotSym, double profil, double tWand, double wandPercent, double volRatio, double innen) {
+double calcRohrLaserTeil (double D1, double D2, int tol, double symA, double symB, double rotSym, double profil, double tWand, double wandPercent, double volRatio, double innen) {
 
 	std::cout << "calc Rohlaserteil beginnt " << std::endl;
 
@@ -150,7 +150,7 @@ double calcRohrLaserTeil (double D1, double D2, int tol, double sym, double rotS
     }
 
 	
-	double allgemeineSym = std::max(rotSym, sym);
+	double allgemeineSym = std::max({ rotSym, symA, symB });
 	
 
 	std::cout << "durchmesser errechnet: " << durchmesser << "mit D Ratio: " << dRatio << " und gewählte symmetrie: " << allgemeineSym * 100 << "%" << std::endl;
@@ -200,17 +200,25 @@ std::string calcPrefVerfahren(double blech, double biege, double rohr, double dr
 	};
 
 	//cost order (cheapest first)
-	static const std::vector<std::string> order = {
+	static const std::vector<std::string> order1 = {
 		"CNC-Blech",
-		"Biegeblech",
 		"Rohrlaserteil",
+		"Biegeblech",
 		"CNC-Drehen",
 		"CNC-Fräsen",
 		"Additive Fertigung"
 	};
 
+	static const std::vector<std::string> order2 = {
+		"CNC-Blech",
+		"Rohrlaserteil",
+		"Biegeblech",
+		"CNC-Drehen",
+		"CNC-Fräsen",
+	};
+
 	// Filter and find the first valid process based on the order
-	for (const auto& process : order) {
+	for (const auto& process : order2) {
 		auto it = processScores.find(process);
 		if (it != processScores.end()) {
 			double score = it->second;
@@ -225,7 +233,7 @@ std::string calcPrefVerfahren(double blech, double biege, double rohr, double dr
 
 	double newThreshold = threshold * 0.8;
 	std::cout << "Didnt find pref.Verfahren. New threshold is: " << newThreshold << std::endl;
-	for (const auto& process : order) {
+	for (const auto& process : order1) {
 		auto it = processScores.find(process);
 		if (it != processScores.end()) {
 			double score = it->second;
